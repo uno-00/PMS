@@ -1,0 +1,223 @@
+openapi: 3.0.3
+info:
+  title: PMS Enterprise Procurement Management System API
+  description: >
+    Read-focused, versioned JSON API for external integrations (COA reporting
+    tools, agency BI dashboards, future mobile apps). Authenticated with
+    Laravel Sanctum personal access tokens. All endpoints are scoped by the
+    authenticated user's role and Spatie permissions exactly like the web
+    application (the same Policies are reused via `$this->authorize(...)`).
+  version: "1.0.0"
+  contact:
+    name: PMS Engineering
+servers:
+  - url: /api/v1
+    description: Same-origin API (issue tokens via Settings > My Account > API Tokens)
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Fiscal Years
+  - name: PPMP
+  - name: Purchase Requests
+
+paths:
+  /fiscal-years:
+    get:
+      tags: [Fiscal Years]
+      summary: List fiscal years
+      responses:
+        "200":
+          description: Paginated list of fiscal years
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FiscalYearCollection"
+
+  /ppmps:
+    get:
+      tags: [PPMP]
+      summary: List Project Procurement Management Plans
+      parameters:
+        - $ref: "#/components/parameters/FiscalYearId"
+        - $ref: "#/components/parameters/DivisionId"
+        - $ref: "#/components/parameters/Status"
+      responses:
+        "200":
+          description: Paginated list of PPMPs (visible to the caller per PpmpPolicy)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PpmpCollection"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /ppmps/{ppmp}:
+    get:
+      tags: [PPMP]
+      summary: Get a single PPMP with its items
+      parameters:
+        - name: ppmp
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: PPMP detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Ppmp"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /purchase-requests:
+    get:
+      tags: [Purchase Requests]
+      summary: List Purchase Requests
+      parameters:
+        - $ref: "#/components/parameters/Status"
+      responses:
+        "200":
+          description: Paginated list of Purchase Requests (visible to the caller per PurchaseRequestPolicy)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PurchaseRequestCollection"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /purchase-requests/{purchaseRequest}:
+    get:
+      tags: [Purchase Requests]
+      summary: Get a single Purchase Request with its items
+      parameters:
+        - name: purchaseRequest
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Purchase Request detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: "Sanctum Personal Access Token"
+
+  parameters:
+    FiscalYearId:
+      name: fiscal_year_id
+      in: query
+      schema: { type: string, format: uuid }
+    DivisionId:
+      name: division_id
+      in: query
+      schema: { type: string, format: uuid }
+    Status:
+      name: status
+      in: query
+      schema: { type: string }
+      description: Filter by the resource's workflow status value (e.g. "draft", "approved").
+
+  responses:
+    Forbidden:
+      description: The authenticated user lacks permission for this resource.
+    NotFound:
+      description: The requested resource does not exist.
+
+  schemas:
+    FiscalYear:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        year: { type: integer, example: 2026 }
+        status: { type: string, example: active }
+        status_label: { type: string, example: Active }
+        is_current: { type: boolean }
+        total_gaa_amount: { type: number, format: float }
+        start_date: { type: string, format: date }
+        end_date: { type: string, format: date }
+
+    FiscalYearCollection:
+      type: object
+      properties:
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/FiscalYear" }
+
+    PpmpItem:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        item_name: { type: string }
+        quantity: { type: number }
+        estimated_unit_cost: { type: number }
+        abc: { type: number }
+        utilized_amount: { type: number }
+
+    Ppmp:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        control_no: { type: string, example: PPMP-2026-AB12CD }
+        title: { type: string }
+        ppmp_type: { type: string, enum: [regular, supplemental, amended] }
+        division: { type: string, nullable: true }
+        status: { type: string, example: approved }
+        status_label: { type: string, example: Approved }
+        total_abc: { type: number, format: float }
+        items_count: { type: integer }
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/PpmpItem" }
+        created_at: { type: string, format: date-time }
+
+    PpmpCollection:
+      type: object
+      properties:
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/Ppmp" }
+
+    PurchaseRequest:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        pr_no: { type: string, example: PR-2026-000123 }
+        purpose: { type: string }
+        division: { type: string, nullable: true }
+        status: { type: string, example: approved }
+        status_label: { type: string, example: Approved }
+        total_amount: { type: number, format: float }
+        created_at: { type: string, format: date-time }
+
+    PurchaseRequestCollection:
+      type: object
+      properties:
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/PurchaseRequest" }
