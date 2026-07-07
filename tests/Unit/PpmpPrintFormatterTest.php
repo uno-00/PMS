@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Enums\PpmpStatus;
+use App\Enums\PpmpDocumentType;
 use App\Enums\PreProcurementConference;
 use App\Models\Planning\Ppmp;
 use App\Models\Planning\PpmpItem;
@@ -11,13 +11,13 @@ use PHPUnit\Framework\TestCase;
 
 class PpmpPrintFormatterTest extends TestCase
 {
-    public function test_marks_final_ppmp_when_approved_or_locked(): void
+    public function test_marks_final_ppmp_from_document_type(): void
     {
-        $approved = new Ppmp(['status' => PpmpStatus::Approved, 'revision_number' => 2]);
-        $draft = new Ppmp(['status' => PpmpStatus::Draft, 'revision_number' => 1]);
+        $final = new Ppmp(['document_type' => PpmpDocumentType::Final, 'revision_number' => 2]);
+        $indicative = new Ppmp(['document_type' => PpmpDocumentType::Indicative, 'revision_number' => 1]);
 
-        $this->assertTrue(PpmpPrintFormatter::isFinal($approved));
-        $this->assertFalse(PpmpPrintFormatter::isFinal($draft));
+        $this->assertTrue(PpmpPrintFormatter::isFinal($final));
+        $this->assertFalse(PpmpPrintFormatter::isFinal($indicative));
     }
 
     public function test_project_type_marks_goods_for_supply_items(): void

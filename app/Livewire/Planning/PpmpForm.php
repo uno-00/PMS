@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Planning;
 
+use App\Enums\PpmpDocumentType;
 use App\Enums\PpmpStatus;
 use App\Enums\PreProcurementConference;
 use App\Models\Budget\BudgetAllocation;
@@ -21,6 +22,8 @@ class PpmpForm extends Component
 
     public string $title = '';
 
+    public string $document_type = 'indicative';
+
     public string $fiscal_year_id = '';
 
     public string $division_id = '';
@@ -35,6 +38,7 @@ class PpmpForm extends Component
             Gate::authorize('update', $ppmp);
             $this->ppmp = $ppmp;
             $this->title = $ppmp->title;
+            $this->document_type = $ppmp->document_type?->value ?? PpmpDocumentType::Indicative->value;
             $this->fiscal_year_id = $ppmp->fiscal_year_id;
             $this->division_id = $ppmp->division_id;
             $this->items = $ppmp->items()->orderBy('item_no')->get()->map(fn ($i) => [
@@ -126,6 +130,7 @@ class PpmpForm extends Component
     {
         return [
             'title' => ['required', 'string', 'max:255'],
+            'document_type' => ['required', 'in:indicative,final'],
             'fiscal_year_id' => ['required', 'exists:fiscal_years,id'],
             'division_id' => ['required', 'exists:divisions,id'],
             'items' => ['required', 'array', 'min:1'],
@@ -150,6 +155,7 @@ class PpmpForm extends Component
         if ($this->ppmp) {
             $this->ppmp->update([
                 'title' => $this->title,
+                'document_type' => $this->document_type,
                 'fiscal_year_id' => $this->fiscal_year_id,
                 'division_id' => $this->division_id,
             ]);
@@ -157,6 +163,7 @@ class PpmpForm extends Component
         } else {
             $ppmp = Ppmp::query()->create([
                 'title' => $this->title,
+                'document_type' => $this->document_type,
                 'fiscal_year_id' => $this->fiscal_year_id,
                 'division_id' => $this->division_id,
                 'ppmp_type' => 'regular',
@@ -222,6 +229,7 @@ class PpmpForm extends Component
             'modes' => $modes,
             'allocations' => $allocations,
             'preProcurementOptions' => PreProcurementConference::options(),
+            'documentTypeOptions' => PpmpDocumentType::options(),
         ])
             ->layout('components.layouts.app', ['title' => $this->ppmp ? 'Edit PPMP' : 'New PPMP']);
     }

@@ -29,7 +29,7 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard*')" icon="home">Dashboard</x-nav-link>
                 </x-nav-group>
 
-                @canany(['gaa.view', 'budget-allocation.view', 'app.view'])
+                @canany(['gaa.view', 'budget-allocation.view', 'app.view', 'market-scoping.view'])
                 <x-nav-group title="Budget &amp; Planning">
                     @can('gaa.view')
                         <x-nav-link :href="route('gaa.index')" :active="request()->routeIs('gaa.*')" icon="banknotes">General Appropriations Act</x-nav-link>
@@ -39,6 +39,9 @@
                     @endcan
                     @can('budget-allocation.view')
                         <x-nav-link :href="route('budget-allocations.index')" :active="request()->routeIs('budget-allocations.*')" icon="chart-pie">Budget Allocation</x-nav-link>
+                    @endcan
+                    @can('market-scoping.view')
+                        <x-nav-link :href="route('market-scoping.index')" :active="request()->routeIs('market-scoping.*')" icon="clipboard">Market Scoping</x-nav-link>
                     @endcan
                 </x-nav-group>
                 @endcanany

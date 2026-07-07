@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             BacMemberSeeder::class,
             BidderPortalSeeder::class,
             SampleProcurementSeeder::class,
+            MarketScopingSeeder::class,
         ]);
     }
 }

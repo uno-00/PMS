@@ -107,6 +107,7 @@ return [
             P::forModule('gaa'),
             ['app.view', 'app.review'],
             P::forModule('budget-allocation'),
+            P::forModule('market-scoping'),
             ['ppmp.view', 'ppmp.validate-budget'],
             ['purchase-request.view', 'purchase-request.review-budget'],
             P::forModule('caf'),
@@ -117,6 +118,7 @@ return [
         Roles::PLANNING_OFFICER => array_merge(
             P::forModule('dashboard'),
             ['app.view', 'app.consolidate', 'app.review', 'app.lock', 'app.unlock'],
+            P::forModule('market-scoping'),
             ['ppmp.view', 'ppmp.review-planning', 'ppmp.consolidate-bac'],
             ['purchase-request.view', 'purchase-request.review-planning'],
             ['bac-calendar.view'],
@@ -147,6 +149,7 @@ return [
         Roles::DIVISION_CHIEF => array_merge(
             P::forModule('dashboard'),
             ['ppmp.view', 'ppmp.create', 'ppmp.edit', 'ppmp.submit', 'ppmp.review-division'],
+            P::forModule('market-scoping'),
             ['purchase-request.view', 'purchase-request.create', 'purchase-request.edit', 'purchase-request.submit', 'purchase-request.review-division'],
             P::forModule('reports'),
             P::forModule('help')
@@ -155,6 +158,7 @@ return [
         Roles::END_USER => array_merge(
             P::forModule('dashboard'),
             ['ppmp.view'],
+            ['market-scoping.view', 'market-scoping.create', 'market-scoping.edit'],
             ['purchase-request.view', 'purchase-request.create', 'purchase-request.edit', 'purchase-request.submit'],
             ['help.view']
         ),

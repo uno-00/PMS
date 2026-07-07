@@ -49,10 +49,11 @@
 
     @error('budget')<div class="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300">{{ $message }}</div>@enderror
 
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <x-stat-card label="Total ABC" :value="'₱'.number_format($ppmp->total_abc, 2)" icon="banknotes" />
         <x-stat-card label="Items" :value="$items->count()" icon="document-text" accent="indigo" />
         <x-stat-card label="Fiscal Year" :value="$ppmp->fiscalYear?->year" icon="calendar" accent="amber" />
+        <x-stat-card label="Document Type" :value="$ppmp->document_type?->label() ?? 'Indicative'" icon="document-text" accent="sky" />
     </div>
 
     <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">

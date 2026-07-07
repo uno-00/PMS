@@ -5,6 +5,7 @@ use App\Http\Controllers\Pdf\CafPdfController;
 use App\Http\Controllers\Pdf\GaaPdfController;
 use App\Http\Controllers\Pdf\NoticeOfAwardPdfController;
 use App\Http\Controllers\Pdf\NoticeToProceedPdfController;
+use App\Http\Controllers\Pdf\MarketScopingPdfController;
 use App\Http\Controllers\Pdf\PpmpPdfController;
 use App\Http\Controllers\Pdf\PurchaseOrderPdfController;
 use App\Http\Controllers\Pdf\PurchaseRequestPdfController;
@@ -28,6 +29,9 @@ use App\Livewire\Gaa\Upload as GaaUpload;
 use App\Livewire\Help\Index as HelpIndex;
 use App\Livewire\Payment\PaymentIndex;
 use App\Livewire\Planning\AppShow;
+use App\Livewire\Planning\MarketScopingForm;
+use App\Livewire\Planning\MarketScopingIndex;
+use App\Livewire\Planning\MarketScopingShow;
 use App\Livewire\Planning\PpmpForm;
 use App\Livewire\Planning\PpmpIndex;
 use App\Livewire\Planning\PpmpShow;
@@ -90,6 +94,15 @@ Route::middleware(['auth'])->group(function () {
 
         // Phase 3: Budget Allocation
         Route::get('/budget-allocations', AllocationIndex::class)->name('budget-allocations.index');
+
+        // Market Scoping Checklist
+        Route::prefix('market-scoping')->name('market-scoping.')->group(function () {
+            Route::get('/', MarketScopingIndex::class)->name('index');
+            Route::get('/create', MarketScopingForm::class)->name('create');
+            Route::get('/{marketScoping}/edit', MarketScopingForm::class)->name('edit');
+            Route::get('/{marketScoping}', MarketScopingShow::class)->name('show');
+            Route::get('/{marketScoping}/print', MarketScopingPdfController::class)->name('print');
+        });
 
         // Phase 4: PPMP
         Route::prefix('ppmps')->name('ppmps.')->group(function () {

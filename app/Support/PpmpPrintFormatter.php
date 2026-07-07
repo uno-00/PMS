@@ -2,7 +2,7 @@
 
 namespace App\Support;
 
-use App\Enums\PpmpStatus;
+use App\Enums\PpmpDocumentType;
 use App\Enums\PreProcurementConference;
 use App\Models\Planning\Ppmp;
 use App\Models\Planning\PpmpItem;
@@ -21,7 +21,12 @@ final class PpmpPrintFormatter
 
     public static function isFinal(Ppmp $ppmp): bool
     {
-        return in_array($ppmp->status, [PpmpStatus::Approved, PpmpStatus::Locked], true);
+        return ($ppmp->document_type ?? PpmpDocumentType::Indicative) === PpmpDocumentType::Final;
+    }
+
+    public static function isIndicative(Ppmp $ppmp): bool
+    {
+        return ! self::isFinal($ppmp);
     }
 
     public static function generalDescription(PpmpItem $item): string

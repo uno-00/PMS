@@ -24,6 +24,7 @@ final class Permissions
             'gaa' => ['view', 'upload', 'validate', 'approve', 'distribute', 'delete'],
             'app' => ['view', 'consolidate', 'review', 'approve', 'lock', 'unlock'],
             'budget-allocation' => ['view', 'allocate', 'reallocate', 'delete'],
+            'market-scoping' => ['view', 'create', 'edit', 'approve', 'delete'],
             'ppmp' => ['view', 'create', 'edit', 'submit', 'review-division', 'review-planning', 'validate-budget', 'consolidate-bac', 'approve', 'lock', 'delete'],
             'purchase-request' => ['view', 'create', 'edit', 'submit', 'review-division', 'review-planning', 'review-budget', 'approve-hope', 'delete'],
             'caf' => ['view', 'generate', 'certify', 'approve', 'print'],

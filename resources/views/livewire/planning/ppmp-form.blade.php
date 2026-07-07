@@ -44,6 +44,18 @@
                     </select>
                     @error('division_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
+                <div>
+                    <label class="{{ $label }}">PPMP Type</label>
+                    <div class="mt-2 flex flex-wrap gap-4">
+                        @foreach($documentTypeOptions as $value => $labelText)
+                            <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                                <input type="radio" wire:model="document_type" value="{{ $value }}" class="border-slate-300 text-primary-600 focus:ring-primary-500">
+                                {{ $labelText }}
+                            </label>
+                        @endforeach
+                    </div>
+                    @error('document_type') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                </div>
             </div>
         </x-card>
 

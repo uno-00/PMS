@@ -15,7 +15,7 @@
         .form-subtitle { text-align: center; font-size: 7px; color: #475569; margin-bottom: 6px; }
         .meta-row td { padding: 3px 4px; vertical-align: top; font-size: 7px; }
         .meta-label { font-weight: bold; white-space: nowrap; padding-right: 4px; }
-        .check-row { margin: 4px 0 6px; font-size: 7px; }
+        .check-row { margin: 4px 0 6px; font-size: 7px; text-align: center; }
         .check-box { display: inline-block; width: 10px; text-align: center; font-weight: bold; }
         .ppmp-table th, .ppmp-table td { border: 1px solid #111827; padding: 3px; vertical-align: top; font-size: 6.5px; }
         .ppmp-table th { background: #f8fafc; font-weight: bold; text-align: center; }

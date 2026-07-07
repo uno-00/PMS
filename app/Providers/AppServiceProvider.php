@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Bac\Procurement;
 use App\Models\Budget\GeneralAppropriationsAct;
 use App\Models\Planning\AnnualProcurementPlan;
+use App\Models\Planning\MarketScoping;
 use App\Models\Planning\Ppmp;
 use App\Models\Procurement\CertificateOfAvailabilityOfFunds;
 use App\Models\Procurement\PurchaseOrder;
@@ -15,6 +16,7 @@ use App\Policies\AnnualProcurementPlanPolicy;
 use App\Policies\BidderPolicy;
 use App\Policies\CafPolicy;
 use App\Policies\GaaPolicy;
+use App\Policies\MarketScopingPolicy;
 use App\Policies\PpmpPolicy;
 use App\Policies\ProcurementPolicy;
 use App\Policies\PurchaseOrderPolicy;
@@ -36,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
         GeneralAppropriationsAct::class => GaaPolicy::class,
         AnnualProcurementPlan::class => AnnualProcurementPlanPolicy::class,
         Ppmp::class => PpmpPolicy::class,
+        MarketScoping::class => MarketScopingPolicy::class,
         PurchaseRequest::class => PurchaseRequestPolicy::class,
         CertificateOfAvailabilityOfFunds::class => CafPolicy::class,
         Procurement::class => ProcurementPolicy::class,

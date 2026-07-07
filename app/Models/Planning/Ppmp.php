@@ -2,6 +2,7 @@
 
 namespace App\Models\Planning;
 
+use App\Enums\PpmpDocumentType;
 use App\Enums\PpmpStatus;
 use App\Models\Concerns\HasAuditLog;
 use App\Models\Concerns\HasDocuments;
@@ -21,7 +22,7 @@ class Ppmp extends Model
     use HasAuditLog, HasDocuments, HasUuid, HasWorkflow, SoftDeletes;
 
     protected $fillable = [
-        'fiscal_year_id', 'annual_procurement_plan_id', 'division_id', 'ppmp_type', 'parent_id',
+        'fiscal_year_id', 'annual_procurement_plan_id', 'division_id', 'ppmp_type', 'document_type', 'parent_id',
         'revision_number', 'control_no', 'title', 'total_abc', 'status', 'prepared_by', 'submitted_at',
         'division_chief_by', 'division_chief_at', 'planning_by', 'planning_at', 'budget_by', 'budget_at',
         'bac_by', 'bac_at', 'approved_by', 'approved_at', 'locked_by', 'locked_at', 'remarks',
@@ -30,6 +31,7 @@ class Ppmp extends Model
     protected $casts = [
         'total_abc' => 'decimal:2',
         'status' => PpmpStatus::class,
+        'document_type' => PpmpDocumentType::class,
         'submitted_at' => 'datetime',
         'division_chief_at' => 'datetime',
         'planning_at' => 'datetime',
@@ -48,7 +50,7 @@ class Ppmp extends Model
 
     protected function auditableAttributes(): array
     {
-        return ['title', 'status', 'total_abc', 'ppmp_type', 'revision_number'];
+        return ['title', 'status', 'total_abc', 'ppmp_type', 'document_type', 'revision_number'];
     }
 
     public function fiscalYear(): BelongsTo
