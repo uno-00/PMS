@@ -4,6 +4,7 @@ namespace App\Livewire\PurchaseOrder;
 
 use App\Enums\PurchaseOrderStatus;
 use App\Enums\PurchaseRequestStatus;
+use App\Livewire\Concerns\InteractsWithTableFilters;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseRequest;
 use App\Models\Supplier\Bidder;
@@ -25,7 +26,19 @@ use Livewire\WithPagination;
 #[Layout('components.layouts.app')]
 class PurchaseOrderIndex extends Component
 {
-    use WithPagination;
+    use InteractsWithTableFilters, WithPagination;
+
+    #[Url]
+    public string $filterPoNo = '';
+
+    #[Url]
+    public string $filterSupplier = '';
+
+    #[Url]
+    public string $filterDivision = '';
+
+    #[Url]
+    public string $filterAmount = '';
 
     #[Url]
     public string $status = '';
@@ -45,6 +58,17 @@ class PurchaseOrderIndex extends Component
     public function mount(): void
     {
         Gate::authorize('purchase-order.view');
+    }
+
+    public function resetFilters(): void
+    {
+        $this->resetTableFilters([
+            'filterPoNo',
+            'filterSupplier',
+            'filterDivision',
+            'filterAmount',
+            'status',
+        ]);
     }
 
     public function openCreateModal(): void
@@ -103,11 +127,24 @@ class PurchaseOrderIndex extends Component
 
     public function render()
     {
-        $purchaseOrders = PurchaseOrder::query()
-            ->with(['purchaseRequest.division', 'bidder'])
-            ->when($this->status, fn ($q) => $q->where('status', $this->status))
-            ->orderByDesc('created_at')
-            ->paginate(15);
+        $query = PurchaseOrder::query()
+            ->with(['purchaseRequest.division', 'bidder']);
+
+        $this->applyLikeFilter($query, 'po_no', $this->filterPoNo);
+
+        if ($this->filterSupplier !== '') {
+            $query->whereHas('bidder', fn ($q) => $q->where('company_name', 'like', '%'.$this->filterSupplier.'%'));
+        }
+
+        if ($this->filterDivision !== '') {
+            $query->whereHas('purchaseRequest.division', fn ($q) => $q->where('name', 'like', '%'.$this->filterDivision.'%'));
+        }
+
+        $this->applyAmountFilter($query, 'total_amount', $this->filterAmount);
+        $this->applyExactFilter($query, 'status', $this->status);
+        $this->applyCreatedAtFilter($query);
+
+        $purchaseOrders = $query->orderByDesc('created_at')->paginate(15);
 
         $eligiblePrs = PurchaseRequest::query()
             ->where('status', PurchaseRequestStatus::Approved)

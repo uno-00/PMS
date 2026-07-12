@@ -9,8 +9,9 @@ enum PpmpStatus: string implements Transitionable
     case Draft = 'draft';
     case DivisionChiefReview = 'division_chief_review';
     case PlanningReview = 'planning_review';
-    case BudgetValidation = 'budget_validation';
     case BacConsolidation = 'bac_consolidation';
+    case ProcurementModeReview = 'procurement_mode_review';
+    case BudgetValidation = 'budget_validation';
     case Approved = 'approved';
     case Locked = 'locked';
     case ReturnedForRevision = 'returned_for_revision';
@@ -20,12 +21,13 @@ enum PpmpStatus: string implements Transitionable
         return match ($this) {
             self::Draft => [self::DivisionChiefReview],
             self::DivisionChiefReview => [self::PlanningReview, self::ReturnedForRevision],
-            self::PlanningReview => [self::BudgetValidation, self::ReturnedForRevision],
-            self::BudgetValidation => [self::BacConsolidation, self::ReturnedForRevision],
-            self::BacConsolidation => [self::Approved, self::ReturnedForRevision],
+            self::PlanningReview => [self::BacConsolidation, self::ReturnedForRevision],
+            self::BacConsolidation => [self::ProcurementModeReview, self::ReturnedForRevision],
+            self::ProcurementModeReview => [self::BudgetValidation, self::ReturnedForRevision],
+            self::BudgetValidation => [self::Approved, self::ReturnedForRevision],
             self::Approved => [self::Locked],
             self::Locked => [],
-            self::ReturnedForRevision => [self::Draft],
+            self::ReturnedForRevision => [self::Draft, self::DivisionChiefReview],
         };
     }
 
@@ -35,8 +37,9 @@ enum PpmpStatus: string implements Transitionable
             self::Draft => 'Draft',
             self::DivisionChiefReview => 'Division Chief Review',
             self::PlanningReview => 'Planning Review',
-            self::BudgetValidation => 'Budget Validation',
             self::BacConsolidation => 'BAC Consolidation',
+            self::ProcurementModeReview => 'Procurement Mode Review',
+            self::BudgetValidation => 'Budget Validation',
             self::Approved => 'Approved',
             self::Locked => 'Locked',
             self::ReturnedForRevision => 'Returned for Revision',
@@ -49,8 +52,9 @@ enum PpmpStatus: string implements Transitionable
             self::Draft => 'slate',
             self::DivisionChiefReview => 'amber',
             self::PlanningReview => 'indigo',
-            self::BudgetValidation => 'purple',
             self::BacConsolidation => 'cyan',
+            self::ProcurementModeReview => 'teal',
+            self::BudgetValidation => 'purple',
             self::Approved => 'emerald',
             self::Locked => 'blue',
             self::ReturnedForRevision => 'red',
@@ -63,8 +67,9 @@ enum PpmpStatus: string implements Transitionable
         return match ($this) {
             self::DivisionChiefReview => 'division_chief_review',
             self::PlanningReview => 'planning_review',
-            self::BudgetValidation => 'budget_validation',
             self::BacConsolidation => 'bac_consolidation',
+            self::ProcurementModeReview => 'procurement_mode_review',
+            self::BudgetValidation => 'budget_validation',
             self::Approved => 'approval',
             default => null,
         };

@@ -55,6 +55,8 @@ class DocumentStorageService
             ['visibility' => 'private']
         );
 
+        $checksumPath = $file->getRealPath() ?: $file->getPathname();
+
         return Document::query()->create([
             'documentable_type' => $documentable->getMorphClass(),
             'documentable_id' => $documentable->getKey(),
@@ -66,7 +68,7 @@ class DocumentStorageService
             'mime_type' => $file->getClientMimeType(),
             'size' => $file->getSize(),
             'version' => $nextVersion,
-            'checksum' => hash_file('sha256', $file->getRealPath()),
+            'checksum' => is_readable($checksumPath) ? hash_file('sha256', $checksumPath) : hash('sha256', (string) file_get_contents($checksumPath)),
             'uploaded_by' => $uploader?->id,
             'metadata' => $metadata,
         ]);

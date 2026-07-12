@@ -8,12 +8,13 @@ use App\Models\Concerns\HasDocuments;
 use App\Models\Concerns\HasUuid;
 use App\Models\Concerns\HasWorkflow;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PhilgepsPosting extends Model
 {
-    use HasAuditLog, HasDocuments, HasUuid, HasWorkflow;
+    use HasAuditLog, HasDocuments, HasFactory, HasUuid, HasWorkflow;
 
     protected $table = 'philgeps_postings';
 

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Supplier;
 
+use App\Livewire\Concerns\InteractsWithTableFilters;
 use App\Models\Supplier\Bidder;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
@@ -12,26 +13,51 @@ use Livewire\WithPagination;
 #[Layout('components.layouts.app')]
 class BidderIndex extends Component
 {
-    use WithPagination;
+    use InteractsWithTableFilters, WithPagination;
+
+    #[Url]
+    public string $filterCompany = '';
+
+    #[Url]
+    public string $filterContactPerson = '';
+
+    #[Url]
+    public string $filterEmail = '';
+
+    #[Url]
+    public string $filterPhilgepsNo = '';
 
     #[Url]
     public string $status = '';
-
-    #[Url]
-    public string $search = '';
 
     public function mount(): void
     {
         Gate::authorize('bidder.view');
     }
 
+    public function resetFilters(): void
+    {
+        $this->resetTableFilters([
+            'filterCompany',
+            'filterContactPerson',
+            'filterEmail',
+            'filterPhilgepsNo',
+            'status',
+        ]);
+    }
+
     public function render()
     {
-        $bidders = Bidder::query()
-            ->when($this->status, fn ($q) => $q->where('status', $this->status))
-            ->when($this->search, fn ($q) => $q->where('company_name', 'like', "%{$this->search}%"))
-            ->orderBy('company_name')
-            ->paginate(15);
+        $query = Bidder::query();
+
+        $this->applyLikeFilter($query, 'company_name', $this->filterCompany);
+        $this->applyLikeFilter($query, 'contact_person', $this->filterContactPerson);
+        $this->applyLikeFilter($query, 'email', $this->filterEmail);
+        $this->applyLikeFilter($query, 'philgeps_registration_no', $this->filterPhilgepsNo);
+        $this->applyExactFilter($query, 'status', $this->status);
+        $this->applyCreatedAtFilter($query);
+
+        $bidders = $query->orderBy('company_name')->paginate(15);
 
         return view('livewire.supplier.bidder-index', [
             'bidders' => $bidders,

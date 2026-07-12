@@ -7,6 +7,7 @@ use App\Enums\GaaStatus;
 use App\Events\Budget\GaaApproved;
 use App\Events\Budget\GaaDistributed;
 use App\Imports\GaaLineItemsImport;
+use App\Imports\GaaWorkbookImport;
 use App\Models\Budget\GeneralAppropriationsAct;
 use App\Models\Settings\FiscalYear;
 use App\Models\User;
@@ -31,7 +32,7 @@ class GaaService
     public function upload(FiscalYear $fiscalYear, UploadedFile $file, User $uploader, ?string $referenceNo = null): GeneralAppropriationsAct
     {
         $import = new GaaLineItemsImport;
-        Excel::import($import, $file);
+        Excel::import(new GaaWorkbookImport($import), $file);
 
         return DB::transaction(function () use ($fiscalYear, $file, $uploader, $referenceNo, $import) {
             $gaa = $this->repository->forFiscalYear($fiscalYear->id)

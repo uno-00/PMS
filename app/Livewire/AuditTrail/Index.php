@@ -2,6 +2,7 @@
 
 namespace App\Livewire\AuditTrail;
 
+use App\Livewire\Concerns\InteractsWithTableFilters;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
@@ -18,7 +19,7 @@ use Spatie\Activitylog\Models\Activity;
 #[Layout('components.layouts.app')]
 class Index extends Component
 {
-    use WithPagination;
+    use InteractsWithTableFilters, WithPagination;
 
     #[Url]
     public string $logName = '';
@@ -30,10 +31,7 @@ class Index extends Component
     public string $search = '';
 
     #[Url]
-    public string $dateFrom = '';
-
-    #[Url]
-    public string $dateTo = '';
+    public string $filterUser = '';
 
     public ?string $activeActivityId = null;
 
@@ -49,20 +47,30 @@ class Index extends Component
 
     public function resetFilters(): void
     {
-        $this->reset('logName', 'event', 'search', 'dateFrom', 'dateTo');
+        $this->resetTableFilters([
+            'logName',
+            'event',
+            'search',
+            'filterUser',
+        ]);
     }
 
     public function render()
     {
-        $activities = Activity::query()
-            ->with('causer')
-            ->when($this->logName, fn ($q) => $q->where('log_name', $this->logName))
-            ->when($this->event, fn ($q) => $q->where('event', $this->event))
-            ->when($this->search, fn ($q) => $q->where('description', 'like', "%{$this->search}%"))
-            ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
-            ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo))
-            ->latest()
-            ->paginate(25);
+        $query = Activity::query()
+            ->with('causer');
+
+        $this->applyExactFilter($query, 'log_name', $this->logName);
+        $this->applyExactFilter($query, 'event', $this->event);
+        $this->applyLikeFilter($query, 'description', $this->search);
+
+        if ($this->filterUser !== '') {
+            $query->whereHas('causer', fn ($q) => $q->where('name', 'like', '%'.$this->filterUser.'%'));
+        }
+
+        $this->applyCreatedAtFilter($query);
+
+        $activities = $query->latest()->paginate(25);
 
         return view('livewire.audit-trail.index', [
             'activities' => $activities,

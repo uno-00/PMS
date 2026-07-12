@@ -5,6 +5,7 @@ namespace App\Livewire\Bac;
 use App\Enums\BacRosterRole;
 use App\Enums\TwGCategory;
 use App\Enums\TwGDesignationType;
+use App\Livewire\Concerns\InteractsWithTableFilters;
 use App\Models\Bac\BacMember;
 use App\Models\Settings\Division;
 use App\Models\User;
@@ -19,16 +20,22 @@ use Livewire\WithPagination;
 #[Layout('components.layouts.app')]
 class MemberIndex extends Component
 {
-    use WithPagination;
+    use InteractsWithTableFilters, WithPagination;
 
     #[Url]
-    public string $search = '';
+    public string $filterSearch = '';
 
     #[Url]
-    public string $roleFilter = '';
+    public string $filterRole = '';
 
     #[Url]
-    public string $categoryFilter = '';
+    public string $filterCategory = '';
+
+    #[Url]
+    public string $filterDesignation = '';
+
+    #[Url]
+    public string $filterStatus = '';
 
     public bool $showModal = false;
 
@@ -66,19 +73,15 @@ class MemberIndex extends Component
         Gate::authorize('bac-members.view');
     }
 
-    public function updatingSearch(): void
+    public function resetFilters(): void
     {
-        $this->resetPage();
-    }
-
-    public function updatingRoleFilter(): void
-    {
-        $this->resetPage();
-    }
-
-    public function updatingCategoryFilter(): void
-    {
-        $this->resetPage();
+        $this->resetTableFilters([
+            'filterSearch',
+            'filterRole',
+            'filterCategory',
+            'filterDesignation',
+            'filterStatus',
+        ]);
     }
 
     public function openCreate(): void
@@ -199,16 +202,31 @@ class MemberIndex extends Component
 
     public function render(BacMemberService $service)
     {
-        $members = BacMember::query()
-            ->with(['user.division', 'twgAssignments'])
-            ->when($this->search !== '', function ($q) {
-                $q->whereHas('user', function ($inner) {
-                    $inner->where('name', 'like', '%'.$this->search.'%')
-                        ->orWhere('email', 'like', '%'.$this->search.'%');
-                });
-            })
-            ->when($this->roleFilter !== '', fn ($q) => $q->where('bac_role', $this->roleFilter))
-            ->when($this->categoryFilter !== '', fn ($q) => $q->forTwGCategory($this->categoryFilter))
+        $query = BacMember::query()
+            ->with(['user.division', 'twgAssignments']);
+
+        if ($this->filterSearch !== '') {
+            $query->whereHas('user', function ($inner) {
+                $inner->where('name', 'like', '%'.$this->filterSearch.'%')
+                    ->orWhere('email', 'like', '%'.$this->filterSearch.'%');
+            });
+        }
+
+        $this->applyExactFilter($query, 'bac_role', $this->filterRole);
+
+        if ($this->filterCategory !== '') {
+            $query->forTwGCategory($this->filterCategory);
+        }
+
+        $this->applyLikeFilter($query, 'designation', $this->filterDesignation);
+
+        if ($this->filterStatus !== '') {
+            $query->where('is_active', $this->filterStatus === 'active');
+        }
+
+        $this->applyCreatedAtFilter($query);
+
+        $members = $query
             ->orderByRaw("CASE bac_role WHEN 'chairperson' THEN 1 WHEN 'secretariat' THEN 2 ELSE 3 END")
             ->orderBy('created_at')
             ->paginate(12);

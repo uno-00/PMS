@@ -1,6 +1,9 @@
 <div>
     <x-page-header title="BAC Calendar" subtitle="Pre-procurement conferences, pre-bid conferences, bid openings, post-qualification, NOA, NTP, contract signing, and PO issuance.">
         <x-slot:actions>
+            @can('create', \App\Models\Bac\BacCalendarEvent::class)
+                <x-button href="{{ route('bac-calendar.create') }}" size="sm"><x-icon name="plus" class="h-4 w-4" /> New Event</x-button>
+            @endcan
             <x-button wire:click="previousMonth" variant="secondary" size="sm">&larr;</x-button>
             <x-button wire:click="today" variant="secondary" size="sm">Today</x-button>
             <x-button wire:click="nextMonth" variant="secondary" size="sm">&rarr;</x-button>
@@ -22,7 +25,7 @@
                             <p class="text-right text-xs {{ $day->isToday() ? 'font-bold text-primary-600' : 'text-slate-400' }}">{{ $day->day }}</p>
                             <div class="mt-1 space-y-1">
                                 @foreach($dayEvents->take(3) as $event)
-                                    <a href="{{ $event->procurement ? route('procurements.show', $event->procurement) : '#' }}"
+                                    <a href="{{ route('bac-calendar.show', $event) }}"
                                        class="block truncate rounded bg-primary-50 px-1.5 py-0.5 text-[10px] font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
                                        title="{{ $event->title }}">
                                         {{ $event->scheduled_at->format('g:ia') }} {{ $event->title }}
@@ -41,11 +44,18 @@
         <x-card title="Upcoming Activities">
             @forelse($upcoming as $event)
                 <div class="border-b border-slate-100 py-3 last:border-0 dark:border-slate-800">
-                    <p class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ $event->typeLabel() }}</p>
-                    <p class="text-xs text-slate-400">{{ $event->scheduled_at->format('M d, Y g:ia') }}</p>
-                    @if($event->procurement)
-                        <a href="{{ route('procurements.show', $event->procurement) }}" class="text-xs font-medium text-primary-600 hover:underline">{{ $event->procurement->title }}</a>
-                    @endif
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <a href="{{ route('bac-calendar.show', $event) }}" class="text-sm font-medium text-slate-700 hover:text-primary-700 hover:underline dark:text-slate-200">{{ $event->typeLabel() }}</a>
+                            <p class="text-xs text-slate-400">{{ $event->scheduled_at->format('M d, Y g:ia') }}</p>
+                            @if($event->procurement)
+                                <a href="{{ route('procurements.show', $event->procurement) }}" class="text-xs font-medium text-primary-600 hover:underline">{{ $event->procurement->title }}</a>
+                            @endif
+                        </div>
+                        @can('delete', $event)
+                            <x-button wire:click="delete('{{ $event->id }}')" wire:confirm="Remove this calendar event?" variant="danger" size="sm" title="Delete"><x-icon name="trash" class="h-4 w-4" /></x-button>
+                        @endcan
+                    </div>
                 </div>
             @empty
                 <x-empty-state icon="calendar" title="No upcoming activities" />

@@ -10,6 +10,7 @@ use App\Models\Settings\FiscalYear;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -18,7 +19,7 @@ class MarketScoping extends Model
     use HasAuditLog, HasUuid, SoftDeletes;
 
     protected $fillable = [
-        'fiscal_year_id', 'division_id', 'procuring_entity', 'end_user_unit',
+        'project_proposal_id', 'fiscal_year_id', 'division_id', 'procuring_entity', 'end_user_unit',
         'representative_name', 'representative_designation', 'project_name',
         'estimated_budget', 'period_from', 'period_to', 'expected_delivery',
         'activities', 'parameters', 'status', 'prepared_by', 'approved_by',
@@ -58,6 +59,11 @@ class MarketScoping extends Model
         return $this->belongsTo(Division::class);
     }
 
+    public function projectProposal(): BelongsTo
+    {
+        return $this->belongsTo(ProjectProposal::class);
+    }
+
     public function preparedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'prepared_by');
@@ -68,8 +74,18 @@ class MarketScoping extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
+    public function projectProposals(): HasMany
+    {
+        return $this->hasMany(ProjectProposal::class);
+    }
+
     public function isEditable(): bool
     {
         return $this->status === MarketScopingStatus::Draft;
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status === MarketScopingStatus::Approved;
     }
 }

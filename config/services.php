@@ -47,4 +47,14 @@ return [
         'sender_id' => env('SMS_SENDER_ID', 'PMS-GOV'),
     ],
 
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY'),
+        'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
+        'url' => env('OPENAI_URL', 'https://api.openai.com/v1/chat/completions'),
+        'timeout' => env('OPENAI_TIMEOUT', 90),
+        'retries' => env('OPENAI_RETRIES', 2),
+        'retry_sleep_ms' => env('OPENAI_RETRY_SLEEP_MS', 750),
+        'fallback_to_templates' => env('OPENAI_FALLBACK_TO_TEMPLATES', true),
+    ],
+
 ];

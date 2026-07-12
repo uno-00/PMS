@@ -124,4 +124,68 @@ class BudgetAllocationService
             ->where('fiscal_year_id', $fiscalYearId)
             ->sum('utilized_amount');
     }
+
+    /**
+     * Update a node's allocation amount. Re-runs the "no overallocation"
+     * invariant against the parent: the new amount may not exceed the
+     * parent's remaining balance plus what this node currently holds (so a
+     * node can always be reduced, and can grow back into the slack its own
+     * allocation currently occupies). Throws BudgetExceededException when
+     * the increase would breach the parent's free balance.
+     */
+    public function update(BudgetAllocation $allocation, array $attributes, User $user): BudgetAllocation
+    {
+        return DB::transaction(function () use ($allocation, $attributes) {
+            $allocation = BudgetAllocation::query()->lockForUpdate()->findOrFail($allocation->id);
+
+            if (array_key_exists('remarks', $attributes)) {
+                $allocation->remarks = $attributes['remarks'];
+            }
+
+            if (array_key_exists('allocated_amount', $attributes)) {
+                $amount = (float) $attributes['allocated_amount'];
+
+                // The node's own current allocation is part of the parent's
+                // consumed balance, so the available slack for this node is
+                // (parent remaining) + (this node's current allocation).
+                if ($allocation->parent_id) {
+                    $parent = BudgetAllocation::query()->lockForUpdate()->findOrFail($allocation->parent_id);
+                    $available = round((float) $parent->remaining_balance + (float) $allocation->allocated_amount, 2);
+
+                    if ($amount > $available) {
+                        throw BudgetExceededException::forAllocation($amount, $available);
+                    }
+                }
+
+                $allocation->allocated_amount = $amount;
+            }
+
+            $allocation->save();
+
+            return $allocation->fresh();
+        });
+    }
+
+    /**
+     * Remove a leaf allocation node. Refuses to delete any node that has
+     * children (the tree must be collapsed bottom-up) or that carries
+     * utilized funds (those represent committed, audited spend). Safe to
+     * delete GAA-seeded root nodes only once their children are gone.
+     */
+    public function delete(BudgetAllocation $allocation): void
+    {
+        DB::transaction(function () use ($allocation) {
+            $allocation = BudgetAllocation::query()->lockForUpdate()->findOrFail($allocation->id);
+
+            if ($allocation->children()->exists()) {
+                throw new \DomainException('Cannot delete a budget allocation that still has sub-allocations. Remove its child nodes first.');
+            }
+
+            if ((float) $allocation->utilized_amount > 0) {
+                throw new \DomainException('Cannot delete a budget allocation with utilized funds.');
+            }
+
+            $allocation->delete();
+        });
+    }
 }

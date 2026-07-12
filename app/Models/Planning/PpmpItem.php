@@ -10,6 +10,7 @@ use App\Models\Settings\FundSource;
 use App\Models\Settings\ModeOfProcurement;
 use App\Models\Settings\Pap;
 use App\Models\Settings\UacsCode;
+use App\Support\RichTextSanitizer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -78,5 +79,20 @@ class PpmpItem extends Model
     public function remainingBalance(): float
     {
         return round((float) $this->abc - (float) $this->utilized_amount, 2);
+    }
+
+    public function plainDescription(): string
+    {
+        return RichTextSanitizer::plainText($this->description);
+    }
+
+    public function plainSpecification(): string
+    {
+        return RichTextSanitizer::plainText($this->specification);
+    }
+
+    public function plainRemarks(): string
+    {
+        return RichTextSanitizer::plainText($this->remarks);
     }
 }

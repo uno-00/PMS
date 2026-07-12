@@ -31,8 +31,9 @@ class ApprovalRoutingSeeder extends Seeder
             'ppmp' => [
                 ['division_chief_review', 'Division Chief Review', Roles::DIVISION_CHIEF],
                 ['planning_review', 'Planning Review', Roles::PLANNING_OFFICER],
-                ['budget_validation', 'Budget Validation', Roles::BUDGET_OFFICER],
                 ['bac_consolidation', 'BAC Consolidation', Roles::BAC_SECRETARIAT],
+                ['procurement_mode_review', 'Procurement Mode Review', Roles::BAC_SECRETARIAT],
+                ['budget_validation', 'Budget Validation', Roles::BUDGET_OFFICER],
                 ['approval', 'Final Approval', Roles::HOPE],
             ],
             'purchase_request' => [

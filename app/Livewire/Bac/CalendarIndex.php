@@ -18,8 +18,16 @@ class CalendarIndex extends Component
 
     public function mount(): void
     {
-        Gate::authorize('bac-calendar.view');
+        Gate::authorize('viewAny', BacCalendarEvent::class);
         $this->month ??= now()->format('Y-m');
+    }
+
+    public function delete(string $id): void
+    {
+        $event = BacCalendarEvent::query()->findOrFail($id);
+        Gate::authorize('delete', $event);
+        $event->delete();
+        session()->flash('status', 'Calendar event removed.');
     }
 
     public function previousMonth(): void

@@ -46,6 +46,9 @@ class GaaLineItemsImport implements SkipsEmptyRows, SkipsOnFailure, ToCollection
 
     protected array $fundSources;
 
+    /** @var array<int, string> */
+    protected array $codeFields = ['department_code', 'division_code', 'pap_code', 'uacs_code', 'fund_source_code'];
+
     public function __construct()
     {
         $this->departments = Department::query()->pluck('id', 'code')->all();
@@ -59,7 +62,11 @@ class GaaLineItemsImport implements SkipsEmptyRows, SkipsOnFailure, ToCollection
     {
         foreach ($rows as $index => $row) {
             $lineNo = $index + 2; // account for heading row
-            $row = $row->map(fn ($v) => is_string($v) ? trim($v) : $v);
+            $row = $this->normalizeRow($row);
+
+            if ($this->isBlankRow($row)) {
+                continue;
+            }
 
             $rowErrors = $this->validateRow($row, $lineNo);
 
@@ -85,6 +92,51 @@ class GaaLineItemsImport implements SkipsEmptyRows, SkipsOnFailure, ToCollection
         }
     }
 
+    protected function normalizeRow(Collection $row): Collection
+    {
+        return $row->map(function ($value, $key) {
+            if (in_array($key, $this->codeFields, true)) {
+                return $this->normalizeCode($value);
+            }
+
+            return is_string($value) ? trim($value) : $value;
+        });
+    }
+
+    protected function normalizeCode(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_string($value)) {
+            $value = trim($value);
+
+            return $value === '' ? null : $value;
+        }
+
+        if (is_int($value)) {
+            return (string) $value;
+        }
+
+        if (is_float($value)) {
+            return sprintf('%.0f', $value);
+        }
+
+        return trim((string) $value) ?: null;
+    }
+
+    protected function isBlankRow(Collection $row): bool
+    {
+        foreach (['department_code', 'pap_code', 'uacs_code', 'fund_source_code', 'amount'] as $field) {
+            if (! blank($row[$field] ?? null)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     protected function validateRow(Collection $row, int $lineNo): array
     {
         $errors = [];
@@ -97,6 +149,10 @@ class GaaLineItemsImport implements SkipsEmptyRows, SkipsOnFailure, ToCollection
 
         if (! blank($row['department_code'] ?? null) && ! isset($this->departments[$row['department_code']])) {
             $errors[] = "Row {$lineNo}: unknown department code '{$row['department_code']}'.";
+        }
+
+        if (! blank($row['division_code'] ?? null) && ! isset($this->divisions[$row['division_code']])) {
+            $errors[] = "Row {$lineNo}: unknown division code '{$row['division_code']}'.";
         }
 
         if (! blank($row['pap_code'] ?? null) && ! isset($this->paps[$row['pap_code']])) {

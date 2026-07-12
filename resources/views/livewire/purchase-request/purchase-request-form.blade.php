@@ -96,7 +96,7 @@
 
         <div class="mt-6 flex items-center gap-3">
             <x-button wire:click="save(false)" variant="secondary">Save as Draft</x-button>
-            <x-button wire:click="save(true)">Save &amp; Submit for Review</x-button>
+            <x-button wire:click="save(true)">Save & Submit for Review</x-button>
             <x-button href="{{ route('purchase-requests.index') }}" variant="secondary">Cancel</x-button>
         </div>
     @endif

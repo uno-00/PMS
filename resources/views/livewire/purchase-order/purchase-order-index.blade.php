@@ -11,48 +11,63 @@
         <div class="mb-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">{{ session('status') }}</div>
     @endif
 
-    <div class="mb-4 flex gap-2">
-        <select wire:model.live="status" class="rounded-lg border-slate-300 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white">
-            <option value="">All statuses</option>
-            @foreach($statuses as $case)
-                <option value="{{ $case->value }}">{{ $case->label() }}</option>
-            @endforeach
-        </select>
-    </div>
+    <x-card>
+        <x-table.filter-toolbar>Use the column filters below to search purchase order records.</x-table.filter-toolbar>
 
-    @if($purchaseOrders->isEmpty())
-        <x-empty-state icon="truck" title="No purchase orders yet" />
-    @else
-        <x-card>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
-                    <thead>
-                        <tr class="text-left text-xs uppercase text-slate-400">
-                            <th class="py-2 pr-4">PO No.</th>
-                            <th class="py-2 pr-4">Supplier</th>
-                            <th class="py-2 pr-4">Division</th>
-                            <th class="py-2 pr-4 text-right">Amount</th>
-                            <th class="py-2 pr-4">Status</th>
-                            <th class="py-2 pr-4"></th>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+                <thead>
+                    <tr class="text-left text-xs uppercase text-slate-400">
+                        <th class="py-2 pr-4">PO No.</th>
+                        <th class="py-2 pr-4">Supplier</th>
+                        <th class="py-2 pr-4">Division</th>
+                        <th class="py-2 pr-4 text-right">Amount</th>
+                        <th class="py-2 pr-4">Status</th>
+                        <th class="py-2 pr-4">Date Created</th>
+                        <th class="py-2 pr-4"></th>
+                    </tr>
+                    <tr class="border-b border-slate-100 dark:border-slate-800">
+                        <th class="pb-3 pr-4 pt-1"><x-table.filter-text model="filterPoNo" /></th>
+                        <th class="pb-3 pr-4 pt-1"><x-table.filter-text model="filterSupplier" /></th>
+                        <th class="pb-3 pr-4 pt-1"><x-table.filter-text model="filterDivision" /></th>
+                        <th class="pb-3 pr-4 pt-1"><x-table.filter-text model="filterAmount" placeholder="Amount…" align="right" /></th>
+                        <th class="pb-3 pr-4 pt-1">
+                            <x-table.filter-select model="status">
+                                @foreach($statuses as $case)
+                                    <option value="{{ $case->value }}">{{ $case->label() }}</option>
+                                @endforeach
+                            </x-table.filter-select>
+                        </th>
+                        <th class="pb-3 pr-4 pt-1"><x-table.filter-dates /></th>
+                        <th class="pb-3 pr-4 pt-1"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @forelse($purchaseOrders as $po)
+                        <tr wire:key="po-{{ $po->id }}">
+                            <td class="py-3 pr-4 font-mono text-xs text-slate-500">{{ $po->po_no }}</td>
+                            <td class="py-3 pr-4">{{ $po->bidder?->company_name ?? '—' }}</td>
+                            <td class="py-3 pr-4">{{ $po->purchaseRequest?->division?->name }}</td>
+                            <td class="py-3 pr-4 text-right">₱{{ number_format($po->total_amount, 2) }}</td>
+                            <td class="py-3 pr-4"><x-status-badge :status="$po->status" /></td>
+                            <td class="py-3 pr-4 text-xs text-slate-500">{{ $po->created_at?->format('M d, Y') }}</td>
+                            <td class="py-3 pr-4 text-right"><x-button href="{{ route('purchase-orders.show', $po) }}" variant="secondary" size="sm">View</x-button></td>
                         </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                        @foreach($purchaseOrders as $po)
-                            <tr>
-                                <td class="py-3 pr-4 font-mono text-xs text-slate-500">{{ $po->po_no }}</td>
-                                <td class="py-3 pr-4">{{ $po->bidder?->company_name ?? '—' }}</td>
-                                <td class="py-3 pr-4">{{ $po->purchaseRequest?->division?->name }}</td>
-                                <td class="py-3 pr-4 text-right">₱{{ number_format($po->total_amount, 2) }}</td>
-                                <td class="py-3 pr-4"><x-status-badge :status="$po->status" /></td>
-                                <td class="py-3 pr-4 text-right"><x-button href="{{ route('purchase-orders.show', $po) }}" variant="secondary" size="sm">View</x-button></td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="py-10 text-center text-sm text-slate-500 dark:text-slate-400">
+                                No records match your filters.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        @if($purchaseOrders->hasPages())
             <div class="mt-4">{{ $purchaseOrders->links() }}</div>
-        </x-card>
-    @endif
+        @endif
+    </x-card>
 
     @if($showCreateModal)
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4" wire:click.self="$set('showCreateModal', false)">

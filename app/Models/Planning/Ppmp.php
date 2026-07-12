@@ -23,9 +23,10 @@ class Ppmp extends Model
 
     protected $fillable = [
         'fiscal_year_id', 'annual_procurement_plan_id', 'division_id', 'ppmp_type', 'document_type', 'parent_id',
-        'revision_number', 'control_no', 'title', 'total_abc', 'status', 'prepared_by', 'submitted_at',
-        'division_chief_by', 'division_chief_at', 'planning_by', 'planning_at', 'budget_by', 'budget_at',
-        'bac_by', 'bac_at', 'approved_by', 'approved_at', 'locked_by', 'locked_at', 'remarks',
+        'project_proposal_id', 'market_scoping_id', 'revision_number', 'control_no', 'title', 'total_abc', 'status',
+        'prepared_by', 'submitted_at', 'division_chief_by', 'division_chief_at', 'planning_by', 'planning_at',
+        'bac_by', 'bac_at', 'procurement_mode_by', 'procurement_mode_at', 'budget_by', 'budget_at',
+        'approved_by', 'approved_at', 'locked_by', 'locked_at', 'remarks',
     ];
 
     protected $casts = [
@@ -37,6 +38,7 @@ class Ppmp extends Model
         'planning_at' => 'datetime',
         'budget_at' => 'datetime',
         'bac_at' => 'datetime',
+        'procurement_mode_at' => 'datetime',
         'approved_at' => 'datetime',
         'locked_at' => 'datetime',
     ];
@@ -71,6 +73,21 @@ class Ppmp extends Model
     public function parent(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    public function projectProposal(): BelongsTo
+    {
+        return $this->belongsTo(ProjectProposal::class);
+    }
+
+    public function marketScoping(): BelongsTo
+    {
+        return $this->belongsTo(MarketScoping::class);
+    }
+
+    public function procurementModeBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'procurement_mode_by');
     }
 
     public function revisions(): HasMany

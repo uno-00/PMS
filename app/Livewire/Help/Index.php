@@ -17,7 +17,7 @@ class Index extends Component
         Gate::authorize('help.view');
 
         $modules = HelpContent::modules();
-        $this->module = ($module && array_key_exists($module, $modules)) ? $module : array_key_first($modules);
+        $this->module = ($module && array_key_exists($module, $modules)) ? $module : 'getting-started';
     }
 
     public function selectModule(string $module): void

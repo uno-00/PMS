@@ -3,10 +3,12 @@
 namespace App\Livewire\Settings;
 
 use App\Enums\FiscalYearStatus;
+use App\Livewire\Concerns\InteractsWithTableFilters;
 use App\Models\Settings\FiscalYear;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 /**
@@ -17,6 +19,23 @@ use Livewire\Component;
  */
 class FiscalYearsTab extends Component
 {
+    use InteractsWithTableFilters;
+
+    #[Url]
+    public string $filterYear = '';
+
+    #[Url]
+    public string $filterStatus = '';
+
+    #[Url]
+    public string $filterHasGaa = '';
+
+    #[Url]
+    public string $filterHasApp = '';
+
+    #[Url]
+    public string $filterIsCurrent = '';
+
     public bool $showCreateModal = false;
 
     public string $year = '';
@@ -29,6 +48,17 @@ class FiscalYearsTab extends Component
     {
         Gate::authorize('fiscal-year.view');
         $this->year = (string) (now()->year + 1);
+    }
+
+    public function resetFilters(): void
+    {
+        $this->resetTableFilters([
+            'filterYear',
+            'filterStatus',
+            'filterHasGaa',
+            'filterHasApp',
+            'filterIsCurrent',
+        ]);
     }
 
     public function openCreateModal(): void
@@ -88,8 +118,37 @@ class FiscalYearsTab extends Component
 
     public function render()
     {
-        return view('livewire.settings.fiscal-years-tab', [
-            'fiscalYears' => FiscalYear::query()->with(['gaa', 'annualProcurementPlan'])->orderByDesc('year')->get(),
-        ]);
+        $query = FiscalYear::query()
+            ->with(['gaa', 'annualProcurementPlan']);
+
+        if ($this->filterYear !== '') {
+            $query->where('year', 'like', '%'.$this->filterYear.'%');
+        }
+
+        $this->applyExactFilter($query, 'status', $this->filterStatus);
+
+        if ($this->filterHasGaa === 'yes') {
+            $query->whereHas('gaa');
+        } elseif ($this->filterHasGaa === 'no') {
+            $query->whereDoesntHave('gaa');
+        }
+
+        if ($this->filterHasApp === 'yes') {
+            $query->whereHas('annualProcurementPlan');
+        } elseif ($this->filterHasApp === 'no') {
+            $query->whereDoesntHave('annualProcurementPlan');
+        }
+
+        if ($this->filterIsCurrent === 'yes') {
+            $query->where('is_current', true);
+        } elseif ($this->filterIsCurrent === 'no') {
+            $query->where('is_current', false);
+        }
+
+        $this->applyCreatedAtFilter($query);
+
+        $fiscalYears = $query->orderByDesc('year')->get();
+
+        return view('livewire.settings.fiscal-years-tab', compact('fiscalYears'));
     }
 }

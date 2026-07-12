@@ -20,7 +20,7 @@
                     <input wire:model="password_expiry_days" type="number" min="0" max="3650" class="mt-1 block w-full rounded-lg border-slate-300 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
                 </div>
                 <label class="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                    <input wire:model="password_require_mixed_case" type="checkbox" class="rounded border-slate-300 text-primary-600"> Require upper &amp; lowercase letters
+                    <input wire:model="password_require_mixed_case" type="checkbox" class="rounded border-slate-300 text-primary-600"> Require upper & lowercase letters
                 </label>
                 <label class="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
                     <input wire:model="password_require_numbers" type="checkbox" class="rounded border-slate-300 text-primary-600"> Require numbers
@@ -34,7 +34,7 @@
         <hr class="border-slate-200 dark:border-slate-800">
 
         <div>
-            <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-200">Session &amp; Login</h4>
+            <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-200">Session & Login</h4>
             <div class="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Session Timeout (minutes)</label>

@@ -13,6 +13,7 @@ use App\Models\Procurement\PurchaseRequest;
 use App\Models\Settings\ModeOfProcurement;
 use App\Models\Supplier\BidDocumentOrder;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Procurement extends Model
 {
-    use HasAuditLog, HasUuid, HasWorkflow;
+    use HasAuditLog, HasFactory, HasUuid, HasWorkflow;
 
     protected $table = 'procurements';
 

@@ -60,4 +60,24 @@ class PpmpPrintFormatterTest extends TestCase
 
         $this->assertSame('Yes', PpmpPrintFormatter::preProcurementConference($item));
     }
+
+    public function test_print_output_strips_html_from_item_fields(): void
+    {
+        $item = new PpmpItem([
+            'item_name' => 'Desktop Computer Refresh',
+            'description' => '<p>Replace aging <strong>workstations</strong>.</p>',
+            'specification' => '<ol><li>Acquire 20 units</li></ol>',
+            'quantity' => 1,
+            'unit' => 'Lot',
+            'remarks' => '<p>Breakdown of <strong>estimated costs</strong>.</p>',
+        ]);
+
+        $description = PpmpPrintFormatter::generalDescription($item);
+
+        $this->assertStringNotContainsString('<p>', $description);
+        $this->assertStringContainsString('Replace aging workstations.', $description);
+        $this->assertStringNotContainsString('<ol>', PpmpPrintFormatter::quantityAndSize($item));
+        $this->assertStringContainsString('Acquire 20 units', PpmpPrintFormatter::quantityAndSize($item));
+        $this->assertSame('Breakdown of estimated costs.', PpmpPrintFormatter::remarks($item));
+    }
 }

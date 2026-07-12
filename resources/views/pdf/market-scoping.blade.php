@@ -57,7 +57,7 @@
             <td>{{ $record->end_user_unit ?: $record->division?->name ?: '—' }}</td>
         </tr>
         <tr>
-            <td class="meta-label">Name &amp; Designation of Representative</td>
+            <td class="meta-label">Name & Designation of Representative</td>
             <td>{{ trim(($record->representative_name ?: '—').($record->representative_designation ? ' / '.$record->representative_designation : '')) }}</td>
         </tr>
     </table>

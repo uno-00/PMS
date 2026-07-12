@@ -1,5 +1,11 @@
 <div>
-    <x-page-header title="Upload General Appropriations Act" subtitle="Upload the DBM-issued Excel template for a fiscal year. Rows are validated against configured departments, PAPs, UACS codes, and fund sources." />
+    <x-page-header title="Upload General Appropriations Act" subtitle="Upload the DBM-issued Excel template for a fiscal year. Rows are validated against configured departments, PAPs, UACS codes, and fund sources.">
+        <x-slot:actions>
+            @can('upload', \App\Models\Budget\GeneralAppropriationsAct::class)
+                <x-button href="{{ route('gaa.template') }}" variant="secondary" size="sm"><x-icon name="download" class="h-4 w-4" /> Download Template</x-button>
+            @endcan
+        </x-slot:actions>
+    </x-page-header>
 
     <x-card class="max-w-2xl">
         <form wire:submit="save" class="space-y-5">
@@ -24,14 +30,14 @@
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">GAA Excel Template</label>
                 <input wire:model="file" type="file" accept=".xlsx,.xls,.csv"
                        class="mt-1.5 block w-full rounded-lg border border-slate-300 text-sm text-slate-600 shadow-sm file:mr-4 file:rounded-lg file:border-0 file:bg-primary-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
-                <p class="mt-1 text-xs text-slate-400">Expected columns: Department, Division, PAP, UACS Code, Fund Source, Description, Amount.</p>
+                <p class="mt-1 text-xs text-slate-400">Required columns (exact headers): <code class="rounded bg-slate-100 px-1 dark:bg-slate-800">department_code</code>, <code class="rounded bg-slate-100 px-1 dark:bg-slate-800">division_code</code>, <code class="rounded bg-slate-100 px-1 dark:bg-slate-800">pap_code</code>, <code class="rounded bg-slate-100 px-1 dark:bg-slate-800">uacs_code</code>, <code class="rounded bg-slate-100 px-1 dark:bg-slate-800">fund_source_code</code>, <code class="rounded bg-slate-100 px-1 dark:bg-slate-800">description</code>, <code class="rounded bg-slate-100 px-1 dark:bg-slate-800">amount</code>. Use the codes listed on the &ldquo;Reference Codes&rdquo; sheet of the template. Maximum file size: {{ $uploadLimitLabel }} (server limit).</p>
                 <div wire:loading wire:target="file" class="mt-1 text-xs text-primary-600">Uploading&hellip;</div>
                 @error('file') <p class="mt-1.5 text-sm text-red-600">{{ $message }}</p> @enderror
             </div>
 
             <div class="flex items-center gap-3">
                 <x-button type="submit" wire:loading.attr="disabled" wire:target="save">
-                    <span wire:loading.remove wire:target="save">Upload &amp; Parse</span>
+                    <span wire:loading.remove wire:target="save">Upload & Parse</span>
                     <span wire:loading wire:target="save">Processing&hellip;</span>
                 </x-button>
                 <x-button href="{{ route('gaa.index') }}" variant="secondary">Cancel</x-button>

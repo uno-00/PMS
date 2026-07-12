@@ -17,7 +17,7 @@
             @endcan
             @can('distribute', $gaa)
                 @if($gaa->status === \App\Enums\GaaStatus::Approved)
-                    <x-button wire:click="distribute" variant="success">Generate &amp; Distribute Allocation</x-button>
+                    <x-button wire:click="distribute" variant="success">Generate & Distribute Allocation</x-button>
                 @endif
             @endcan
         </x-slot:actions>

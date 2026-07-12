@@ -11,7 +11,6 @@ use App\Models\Budget\GeneralAppropriationsAct;
 use App\Models\Planning\AnnualProcurementPlan;
 use App\Models\Planning\Ppmp;
 use App\Models\Procurement\PurchaseRequest;
-use App\Models\Settings\Department;
 use App\Models\Settings\Division;
 use App\Models\Settings\FiscalYear;
 use App\Models\Settings\FundSource;
@@ -36,7 +35,6 @@ class SampleProcurementSeeder extends Seeder
         $superAdmin = User::query()->where('email', 'superadmin@pms.gov.ph')->first();
         $budgetOfficer = User::query()->where('email', 'budget.officer@pms.gov.ph')->first();
         $itsDivision = Division::query()->where('code', 'ITS-DEV')->first();
-        $itsDepartment = Department::query()->where('code', 'ITS')->first();
         $fundSource = FundSource::query()->where('code', '101')->first();
         $uacs = UacsCode::query()->where('code', '5060402000')->first();
         $pap = Pap::query()->where('type', 'activity')->first();
@@ -67,17 +65,38 @@ class SampleProcurementSeeder extends Seeder
         );
 
         if ($gaa->lineItems()->count() === 0) {
-            $gaa->lineItems()->create([
-                'line_no' => 1,
-                'department_id' => $itsDepartment->id,
-                'division_id' => $itsDivision->id,
-                'pap_id' => $pap->id,
-                'uacs_code_id' => $uacs->id,
-                'fund_source_id' => $fundSource->id,
-                'description' => 'ICT Equipment and Systems Development',
-                'amount' => 5000000,
-            ]);
-            $gaa->update(['total_amount' => 5000000]);
+            $lineItems = [
+                ['division_code' => 'ITS-DEV', 'amount' => 5_000_000, 'description' => 'ICT Equipment and Systems Development'],
+                ['division_code' => 'ITS-NET', 'amount' => 3_000_000, 'description' => 'Network Infrastructure and Data Center'],
+                ['division_code' => 'GSS-SUP', 'amount' => 2_500_000, 'description' => 'General Supplies and Property Management'],
+                ['division_code' => 'FMS-BUD', 'amount' => 2_000_000, 'description' => 'Budget and Financial Systems'],
+                ['division_code' => 'OSEC-PLN', 'amount' => 3_500_000, 'description' => 'Planning and Museum Programs'],
+            ];
+
+            $lineNo = 1;
+            $totalAmount = 0;
+
+            foreach ($lineItems as $row) {
+                $division = Division::query()->where('code', $row['division_code'])->first();
+                if (! $division) {
+                    continue;
+                }
+
+                $gaa->lineItems()->create([
+                    'line_no' => $lineNo++,
+                    'department_id' => $division->department_id,
+                    'division_id' => $division->id,
+                    'pap_id' => $pap->id,
+                    'uacs_code_id' => $uacs->id,
+                    'fund_source_id' => $fundSource->id,
+                    'description' => $row['description'],
+                    'amount' => $row['amount'],
+                ]);
+
+                $totalAmount += $row['amount'];
+            }
+
+            $gaa->update(['total_amount' => $totalAmount]);
         }
 
         if ($gaa->status === GaaStatus::Draft) {
@@ -153,15 +172,16 @@ class SampleProcurementSeeder extends Seeder
             if ($ppmp->status === PpmpStatus::Draft) {
                 $ppmp->transitionTo(PpmpStatus::DivisionChiefReview, 'Sample data.', enforce: false);
                 $ppmp->transitionTo(PpmpStatus::PlanningReview, 'Sample data.', enforce: false);
-                $ppmp->transitionTo(PpmpStatus::BudgetValidation, 'Sample data.', enforce: false);
                 $ppmp->transitionTo(PpmpStatus::BacConsolidation, 'Sample data.', enforce: false);
+                $ppmp->transitionTo(PpmpStatus::ProcurementModeReview, 'Sample data.', enforce: false);
+                $ppmp->transitionTo(PpmpStatus::BudgetValidation, 'Sample data.', enforce: false);
+                $ppmp->transitionTo(PpmpStatus::Approved, 'Sample data budget validated.', enforce: false);
 
                 foreach ($ppmp->items as $item) {
                     app(BudgetAllocationService::class)->utilize($item->budgetAllocation, (float) $item->abc);
                 }
 
                 $ppmp->update(['approved_by' => $superAdmin?->id, 'approved_at' => now()]);
-                $ppmp->transitionTo(PpmpStatus::Approved, 'Sample data approved.', enforce: false);
                 $app->recalculatePlannedAmount();
             }
         }

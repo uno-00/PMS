@@ -173,7 +173,7 @@
 
                             {{-- Section: Cost & schedule --}}
                             <div class="border-t border-slate-100 pt-5 dark:border-slate-800">
-                                <p class="{{ $section }} mb-3">Cost &amp; schedule</p>
+                                <p class="{{ $section }} mb-3">Cost & schedule</p>
                                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                     <div>
                                         <label class="{{ $label }}">Est. unit cost <span class="text-red-500">*</span></label>
@@ -204,7 +204,7 @@
 
                             {{-- Section: Procurement & budget --}}
                             <div class="border-t border-slate-100 pt-5 dark:border-slate-800">
-                                <p class="{{ $section }} mb-3">Procurement &amp; budget</p>
+                                <p class="{{ $section }} mb-3">Procurement & budget</p>
                                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div>
                                         <label class="{{ $label }}">Mode of procurement</label>

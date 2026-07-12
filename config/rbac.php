@@ -54,10 +54,10 @@ return [
 
         Roles::BAC_CHAIRPERSON => array_merge(
             P::forModule('dashboard'),
-            ['bac-calendar.view', 'bac-calendar.manage'],
+            P::forModule('bac-calendar'),
             P::forModule('bac-members'),
             ['app.view', 'app.review', 'app.lock', 'app.unlock'],
-            ['philgeps.view'],
+            ['philgeps.view', 'philgeps.edit', 'philgeps.delete'],
             ['bidder.view', 'bidder.verify', 'bidder.suspend'],
             ['bid-opening.view', 'bid-opening.conduct'],
             ['bid-evaluation.view'],
@@ -72,8 +72,9 @@ return [
 
         Roles::BAC_SECRETARIAT => array_merge(
             P::forModule('dashboard'),
-            ['bac-calendar.view', 'bac-calendar.manage'],
+            P::forModule('bac-calendar'),
             P::forModule('bac-members'),
+            ['ppmp.view', 'ppmp.consolidate-bac', 'ppmp.recommend-procurement-mode'],
             P::forModule('philgeps'),
             ['bidder.view', 'bidder.verify', 'bidder.suspend'],
             P::forModule('bid-documents'),
@@ -108,6 +109,7 @@ return [
             ['app.view', 'app.review'],
             P::forModule('budget-allocation'),
             P::forModule('market-scoping'),
+            P::forModule('project-proposal'),
             ['ppmp.view', 'ppmp.validate-budget'],
             ['purchase-request.view', 'purchase-request.review-budget'],
             P::forModule('caf'),
@@ -119,7 +121,9 @@ return [
             P::forModule('dashboard'),
             ['app.view', 'app.consolidate', 'app.review', 'app.lock', 'app.unlock'],
             P::forModule('market-scoping'),
-            ['ppmp.view', 'ppmp.review-planning', 'ppmp.consolidate-bac'],
+            P::forModule('project-proposal'),
+            ['project-proposal.recommend'],
+            ['ppmp.view', 'ppmp.review-planning'],
             ['purchase-request.view', 'purchase-request.review-planning'],
             ['bac-calendar.view'],
             P::forModule('reports'),
@@ -150,6 +154,7 @@ return [
             P::forModule('dashboard'),
             ['ppmp.view', 'ppmp.create', 'ppmp.edit', 'ppmp.submit', 'ppmp.review-division'],
             P::forModule('market-scoping'),
+            P::forModule('project-proposal'),
             ['purchase-request.view', 'purchase-request.create', 'purchase-request.edit', 'purchase-request.submit', 'purchase-request.review-division'],
             P::forModule('reports'),
             P::forModule('help')
@@ -159,6 +164,7 @@ return [
             P::forModule('dashboard'),
             ['ppmp.view'],
             ['market-scoping.view', 'market-scoping.create', 'market-scoping.edit'],
+            ['project-proposal.view', 'project-proposal.create', 'project-proposal.edit', 'project-proposal.submit'],
             ['purchase-request.view', 'purchase-request.create', 'purchase-request.edit', 'purchase-request.submit'],
             ['help.view']
         ),
@@ -167,6 +173,7 @@ return [
             P::forModule('dashboard'),
             ['app.view', 'app.approve', 'app.lock', 'app.unlock'],
             ['ppmp.view', 'ppmp.approve'],
+            ['project-proposal.view', 'project-proposal.approve'],
             ['purchase-request.view', 'purchase-request.approve-hope'],
             ['award.view', 'award.approve'],
             ['purchase-order.view', 'purchase-order.approve'],

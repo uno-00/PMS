@@ -2,26 +2,38 @@
 
 namespace App\Providers;
 
+use App\Models\Bac\BacCalendarEvent;
+use App\Models\Bac\PhilgepsPosting;
 use App\Models\Bac\Procurement;
+use App\Models\Budget\BudgetAllocation;
 use App\Models\Budget\GeneralAppropriationsAct;
 use App\Models\Planning\AnnualProcurementPlan;
 use App\Models\Planning\MarketScoping;
 use App\Models\Planning\Ppmp;
+use App\Models\Planning\ProjectProposal;
 use App\Models\Procurement\CertificateOfAvailabilityOfFunds;
+use App\Models\Procurement\Payment;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseRequest;
 use App\Models\Settings\SystemSetting;
 use App\Models\Supplier\Bidder;
 use App\Policies\AnnualProcurementPlanPolicy;
+use App\Policies\BacCalendarEventPolicy;
 use App\Policies\BidderPolicy;
+use App\Policies\BudgetAllocationPolicy;
 use App\Policies\CafPolicy;
 use App\Policies\GaaPolicy;
 use App\Policies\MarketScopingPolicy;
+use App\Policies\PaymentPolicy;
+use App\Policies\PhilgepsPostingPolicy;
 use App\Policies\PpmpPolicy;
+use App\Policies\ProjectProposalPolicy;
 use App\Policies\ProcurementPolicy;
 use App\Policies\PurchaseOrderPolicy;
 use App\Policies\PurchaseRequestPolicy;
+use App\Support\NavAccess;
 use App\Support\Roles;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -39,11 +51,16 @@ class AppServiceProvider extends ServiceProvider
         AnnualProcurementPlan::class => AnnualProcurementPlanPolicy::class,
         Ppmp::class => PpmpPolicy::class,
         MarketScoping::class => MarketScopingPolicy::class,
+        ProjectProposal::class => ProjectProposalPolicy::class,
         PurchaseRequest::class => PurchaseRequestPolicy::class,
         CertificateOfAvailabilityOfFunds::class => CafPolicy::class,
         Procurement::class => ProcurementPolicy::class,
         Bidder::class => BidderPolicy::class,
         PurchaseOrder::class => PurchaseOrderPolicy::class,
+        Payment::class => PaymentPolicy::class,
+        BacCalendarEvent::class => BacCalendarEventPolicy::class,
+        BudgetAllocation::class => BudgetAllocationPolicy::class,
+        PhilgepsPosting::class => PhilgepsPostingPolicy::class,
     ];
 
     public function register(): void {}
@@ -63,11 +80,27 @@ class AppServiceProvider extends ServiceProvider
         ]));
         Gate::define('view-audit-trail', fn ($user) => $user->can('audit-trail.view'));
         Gate::define('manage-users', fn ($user) => $user->can('users.manage-roles'));
+        Gate::define('users.reset-password', fn ($user) => $user->hasRole(Roles::SUPER_ADMIN));
         Gate::define('view-executive-dashboard', fn ($user) => $user->can('dashboard.view-executive'));
 
         Gate::before(function ($user, string $ability) {
             return $user->hasRole(Roles::SUPER_ADMIN) ? true : null;
         });
+
+        Blade::if('canNav', fn (string $permission) => NavAccess::can($permission));
+        Blade::if('cananyNav', function (...$permissions) {
+            if (count($permissions) === 1 && is_array($permissions[0])) {
+                $permissions = $permissions[0];
+            }
+
+            return NavAccess::canAny($permissions);
+        });
+
+        // Module activation is enforced in User::hasPermissionTo() rather
+        // than a Gate callback: Spatie's Gate::before resolves permissions
+        // before any application Gate::before/after can run, so the override
+        // is the only point that can actually deny a deactivated module's
+        // permission. See App\Support\ModuleRegistry + ModuleState.
 
         $this->applyRuntimeSettings();
         $this->ensurePublicStorageLink();

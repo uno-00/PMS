@@ -68,4 +68,58 @@ class PhilgepsPostingService
 
         return $posting->fresh();
     }
+
+    /**
+     * Manually record a PhilGEPS posting for a procurement that was posted
+     * directly on the PhilGEPS website (reference number typed in). Distinct
+     * from post() which assumes an automated/API flow; this always marks the
+     * record as manual. The procurement transitions to Posted.
+     */
+    public function createManual(Procurement $procurement, array $attributes, User $user): PhilgepsPosting
+    {
+        $posting = PhilgepsPosting::query()->create([
+            'procurement_id' => $procurement->id,
+            'reference_no' => $attributes['reference_no'] ?? null,
+            'posting_date' => $attributes['posting_date'],
+            'closing_date' => $attributes['closing_date'],
+            'status' => PhilgepsPostingStatus::Published,
+            'is_manual' => true,
+            'remarks' => $attributes['remarks'] ?? null,
+            'posted_by' => $user->id,
+        ]);
+
+        $procurement->transitionTo(ProcurementCaseStatus::Posted, 'Manually recorded PhilGEPS posting.');
+
+        PhilgepsPostingPublished::dispatch($posting);
+
+        return $posting;
+    }
+
+    /**
+     * Edit an existing manual posting's reference number, dates, and remarks.
+     * Only manual postings still in the Published state are editable (the
+     * policy enforces this); this method trusts the caller's authorization.
+     */
+    public function update(PhilgepsPosting $posting, array $attributes): PhilgepsPosting
+    {
+        $posting->update([
+            'reference_no' => $attributes['reference_no'] ?? $posting->reference_no,
+            'posting_date' => $attributes['posting_date'] ?? $posting->posting_date,
+            'closing_date' => $attributes['closing_date'] ?? $posting->closing_date,
+            'remarks' => array_key_exists('remarks', $attributes) ? ($attributes['remarks'] ?: null) : $posting->remarks,
+        ]);
+
+        return $posting->fresh();
+    }
+
+    /**
+     * Remove a manual, still-Published posting. API-originated or
+     * Closed/Cancelled postings are read-only (enforced by policy). Deleting
+     * a posting does not reverse the procurement's Posted transition, since
+     * the case may already have advanced through the workflow.
+     */
+    public function delete(PhilgepsPosting $posting): void
+    {
+        $posting->delete();
+    }
 }

@@ -5,18 +5,21 @@ namespace App\Models\Bac;
 use App\Models\Concerns\HasAuditLog;
 use App\Models\Concerns\HasUuid;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class BacCalendarEvent extends Model
 {
-    use HasAuditLog, HasUuid;
+    use HasAuditLog, HasFactory, HasUuid;
 
     protected $fillable = [
         'procurement_id', 'activity_type', 'title', 'scheduled_at', 'venue', 'remarks', 'status', 'created_by',
     ];
 
     protected $casts = ['scheduled_at' => 'datetime'];
+
+    public const STATUSES = ['scheduled', 'completed', 'cancelled'];
 
     public const TYPES = [
         'pre_procurement_conference' => 'Pre-Procurement Conference',

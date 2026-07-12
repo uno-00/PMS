@@ -61,6 +61,7 @@ class PpmpForm extends Component
             $user = Auth::user();
             $this->fiscal_year_id = FiscalYear::query()->where('is_current', true)->value('id') ?? '';
             $this->division_id = $user->division_id ?? '';
+            $this->document_type = PpmpDocumentType::Final->value;
         }
 
         if (empty($this->items)) {
@@ -138,7 +139,7 @@ class PpmpForm extends Component
             'items.*.unit' => ['required', 'string', 'max:50'],
             'items.*.quantity' => ['required', 'numeric', 'min:0.01'],
             'items.*.estimated_unit_cost' => ['required', 'numeric', 'min:0'],
-            'items.*.budget_allocation_id' => ['required', 'exists:budget_allocations,id'],
+            'items.*.budget_allocation_id' => ['nullable', 'exists:budget_allocations,id'],
             'items.*.mode_of_procurement_id' => ['nullable', 'exists:modes_of_procurement,id'],
             'items.*.pre_procurement_conference' => ['nullable', 'in:yes,no,na'],
             'items.*.schedule_start' => ['nullable', 'date'],

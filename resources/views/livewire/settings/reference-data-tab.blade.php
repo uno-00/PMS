@@ -18,14 +18,48 @@
         <x-button size="sm" wire:click="openCreate">Add Entry</x-button>
     </div>
 
-    <div class="mt-3 overflow-x-auto">
+    <x-table.filter-toolbar class="mt-3">Use the column filters below to search {{ strtolower($config['label']) }} records.</x-table.filter-toolbar>
+
+    <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
             <thead>
                 <tr class="text-left text-xs uppercase text-slate-400">
                     @foreach($config['fields'] as $key => $field)
                         <th class="py-2 pr-4">{{ $field['label'] }}</th>
                     @endforeach
+                    <th class="py-2 pr-4">Date Created</th>
                     <th class="py-2 pr-4"></th>
+                </tr>
+                <tr class="border-b border-slate-100 dark:border-slate-800">
+                    @foreach($config['fields'] as $key => $field)
+                        <th class="pb-3 pr-4 pt-1">
+                            @if($field['type'] === 'boolean')
+                                <x-table.filter-select model="columnFilters.{{ $key }}">
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </x-table.filter-select>
+                            @elseif($field['type'] === 'select')
+                                <x-table.filter-select model="columnFilters.{{ $key }}">
+                                    @foreach($options[$key] ?? [] as $value => $label)
+                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    @endforeach
+                                </x-table.filter-select>
+                            @elseif($field['type'] === 'select-static')
+                                <x-table.filter-select model="columnFilters.{{ $key }}">
+                                    @foreach($field['options'] as $value => $label)
+                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    @endforeach
+                                </x-table.filter-select>
+                            @elseif($field['type'] === 'date')
+                                <input wire:model.live="columnFilters.{{ $key }}" type="date"
+                                       class="w-full rounded border-slate-200 px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-900 dark:text-white">
+                            @else
+                                <x-table.filter-text model="columnFilters.{{ $key }}" />
+                            @endif
+                        </th>
+                    @endforeach
+                    <th class="pb-3 pr-4 pt-1"><x-table.filter-dates /></th>
+                    <th class="pb-3 pr-4 pt-1"></th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
@@ -52,18 +86,17 @@
                                 @endif
                             </td>
                         @endforeach
+                        <td class="py-2.5 pr-4 text-xs text-slate-500">{{ $record->created_at?->format('M d, Y') }}</td>
                         <td class="py-2.5 pr-4 text-right">
                             <div class="flex justify-end gap-2">
                                 <x-button size="sm" variant="secondary" wire:click="openEdit('{{ $record->id }}')">Edit</x-button>
-                                <x-button size="sm" variant="danger" wire:click="delete('{{ $record->id }}')" wire:confirm="Remove this entry?">Delete</x-button>
+                                <x-button size="sm" variant="danger" wire:click="delete('{{ $record->id }}')" wire:confirm="Remove this entry?" title="Delete"><x-icon name="trash" class="h-4 w-4" /></x-button>
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="{{ count($config['fields']) + 1 }}">
-                            <x-empty-state icon="clipboard" title="No entries yet" />
-                        </td>
+                        <td colspan="{{ count($config['fields']) + 2 }}" class="py-10 text-center text-sm text-slate-500">No records match your filters.</td>
                     </tr>
                 @endforelse
             </tbody>

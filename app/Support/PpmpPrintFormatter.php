@@ -6,6 +6,7 @@ use App\Enums\PpmpDocumentType;
 use App\Enums\PreProcurementConference;
 use App\Models\Planning\Ppmp;
 use App\Models\Planning\PpmpItem;
+use App\Support\RichTextSanitizer;
 use Carbon\CarbonInterface;
 
 /**
@@ -33,7 +34,7 @@ final class PpmpPrintFormatter
     {
         $parts = array_filter([
             $item->item_name,
-            $item->description,
+            self::plain($item->description),
         ]);
 
         return implode("\n", $parts) ?: '—';
@@ -55,10 +56,11 @@ final class PpmpPrintFormatter
     public static function quantityAndSize(PpmpItem $item): string
     {
         $quantity = rtrim(rtrim(number_format((float) $item->quantity, 2), '0'), '.');
+        $specification = self::plain($item->specification);
 
         $lines = array_filter([
             $quantity && $item->unit ? "Quantity: {$quantity} {$item->unit}" : ($quantity ? "Quantity: {$quantity}" : null),
-            $item->specification ? 'Size: '.$item->specification : null,
+            $specification !== '' ? 'Size: '.$specification : null,
         ]);
 
         return implode("\n", $lines) ?: '—';
@@ -122,11 +124,11 @@ final class PpmpPrintFormatter
     {
         $docs = ['Market Scoping Checklist'];
 
-        if ($item->specification) {
+        if (self::plain($item->specification) !== '') {
             $docs[] = 'Technical Specifications';
         }
 
-        if ($item->description) {
+        if (self::plain($item->description) !== '') {
             $docs[] = 'Scope of Work / Terms of Reference';
         }
 
@@ -135,15 +137,20 @@ final class PpmpPrintFormatter
 
     public static function remarks(PpmpItem $item): string
     {
-        return $item->remarks ?: '—';
+        return self::plain($item->remarks) ?: '—';
+    }
+
+    protected static function plain(?string $value): string
+    {
+        return RichTextSanitizer::plainText($value);
     }
 
     protected static function resolveCategory(PpmpItem $item): string
     {
         $haystack = strtolower(implode(' ', array_filter([
             $item->item_name,
-            $item->description,
-            $item->specification,
+            self::plain($item->description),
+            self::plain($item->specification),
             $item->relationLoaded('uacsCode') ? $item->uacsCode?->description : null,
         ])));
 

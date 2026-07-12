@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Settings\SystemSetting;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
 /**
@@ -32,6 +33,18 @@ final class PasswordPolicy
         }
 
         return $rule;
+    }
+
+    public static function generate(): string
+    {
+        $min = max((int) SystemSetting::get('security', 'password_min_length', 12), 12);
+
+        return Str::password(
+            length: $min,
+            letters: true,
+            numbers: (bool) SystemSetting::get('security', 'password_require_numbers', true),
+            symbols: (bool) SystemSetting::get('security', 'password_require_symbols', true),
+        );
     }
 
     public static function sessionTimeoutMinutes(): int

@@ -31,7 +31,7 @@
 <div class="cover">
     <div class="badge">RA 12009 Compliant</div>
     <h1 style="margin-top: 14px;">Enterprise Procurement<br>Management System</h1>
-    <p class="subtitle">Complete Installation &amp; Deployment Manual</p>
+    <p class="subtitle">Complete Installation & Deployment Manual</p>
     <p class="meta">
         Version 1.0 &mdash; Generated {{ $generatedAt }}<br>
         {{ config('app.name') }}
@@ -41,14 +41,14 @@
 <h2>Table of Contents</h2>
 <ol class="toc">
     <li>System Overview</li>
-    <li>Hardware &amp; Software Requirements</li>
+    <li>Hardware & Software Requirements</li>
     <li>Local Development Installation</li>
-    <li>Database Setup &amp; Sample Data</li>
+    <li>Database Setup & Sample Data</li>
     <li>Running the Application</li>
     <li>Docker Installation</li>
     <li>Production Deployment (AWS)</li>
     <li>Test Accounts</li>
-    <li>Verification &amp; Testing</li>
+    <li>Verification & Testing</li>
     <li>Troubleshooting</li>
     <li>Additional Documentation</li>
 </ol>
@@ -65,13 +65,13 @@
     GAA &rarr; Budget Allocation &rarr; APP &rarr; PPMP &rarr; Purchase Request &rarr; CAF &rarr;
     BAC Procurement &rarr; PhilGEPS Posting &rarr; Bidder Portal &rarr; Bidding &rarr; Award &rarr;
     Notice to Proceed &rarr; Purchase Order &rarr; Delivery &rarr; Inspection &rarr; Acceptance &rarr;
-    Payment &rarr; Reports &amp; Analytics
+    Payment &rarr; Reports & Analytics
 </p>
 <p><strong>Technology stack:</strong> Laravel 12, PHP 8.3, Livewire 3, TailwindCSS 4, AlpineJS,
-MySQL 8 (SQLite for local sandbox), AWS S3, Laravel Queue &amp; Scheduler, Spatie Permission,
+MySQL 8 (SQLite for local sandbox), AWS S3, Laravel Queue & Scheduler, Spatie Permission,
 DomPDF, Laravel Excel, UUID primary keys, Service Layer + Event-Driven Architecture.</p>
 
-<h2>2. Hardware &amp; Software Requirements</h2>
+<h2>2. Hardware & Software Requirements</h2>
 <h3>Minimum (local development)</h3>
 <ul>
     <li>PHP 8.3+ with extensions: pdo_mysql (or pdo_sqlite), mbstring, bcmath, intl, gd, zip, fileinfo</li>
@@ -116,8 +116,8 @@ php artisan key:generate</pre>
 npm run build</pre>
 <p>For active development with hot reload: <code>npm run dev</code></p>
 
-<h2>4. Database Setup &amp; Sample Data</h2>
-<h3>Option A — Migrations &amp; seeders (recommended)</h3>
+<h2>4. Database Setup & Sample Data</h2>
+<h3>Option A — Migrations & seeders (recommended)</h3>
 <pre>php artisan migrate --seed</pre>
 <p>This creates all tables and seeds:</p>
 <ul>
@@ -210,7 +210,7 @@ docker compose exec app php artisan db:seed</pre>
 </table>
 <p class="muted">Demo accounts appear on login pages when DEMO_ACCOUNTS_VISIBLE=true (default outside production).</p>
 
-<h2>9. Verification &amp; Testing</h2>
+<h2>9. Verification & Testing</h2>
 <pre>composer test
 # or: php artisan test</pre>
 <p>28+ feature tests cover RBAC, budget integrity (no overallocation), and the full procurement lifecycle
@@ -238,14 +238,14 @@ docker compose exec app php artisan db:seed</pre>
 <h2>11. Additional Documentation</h2>
 <table>
     <tr><th>Document</th><th>Location</th></tr>
-    <tr><td>Architecture &amp; ERD</td><td>docs/ARCHITECTURE.md</td></tr>
+    <tr><td>Architecture & ERD</td><td>docs/ARCHITECTURE.md</td></tr>
     <tr><td>Docker Guide</td><td>docs/DOCKER.md</td></tr>
     <tr><td>AWS Deployment</td><td>docs/AWS_DEPLOYMENT.md</td></tr>
     <tr><td>Security</td><td>docs/SECURITY.md</td></tr>
-    <tr><td>RBAC Roles &amp; Permissions</td><td>docs/RBAC.md</td></tr>
-    <tr><td>Backup &amp; Restore</td><td>docs/BACKUP_RESTORE.md</td></tr>
+    <tr><td>RBAC Roles & Permissions</td><td>docs/RBAC.md</td></tr>
+    <tr><td>Backup & Restore</td><td>docs/BACKUP_RESTORE.md</td></tr>
     <tr><td>API Reference</td><td>docs/API.md</td></tr>
-    <tr><td>In-app Help &amp; User Manuals</td><td>Help module (after login)</td></tr>
+    <tr><td>In-app Help & User Manuals</td><td>Help module (after login)</td></tr>
 </table>
 
 <p style="margin-top: 24px; font-size: 9px; color: #94a3b8; text-align: center;">

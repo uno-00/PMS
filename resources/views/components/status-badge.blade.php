@@ -8,6 +8,7 @@
         'indigo' => 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
         'purple' => 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
         'cyan' => 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300',
+        'teal' => 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
         'red' => 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
     ];
     $color = method_exists($status, 'color') ? $status->color() : 'slate';

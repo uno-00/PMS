@@ -2,24 +2,37 @@
 
 namespace App\Livewire\Settings;
 
+use App\Livewire\Concerns\InteractsWithTableFilters;
 use App\Models\Settings\Division;
 use App\Models\User;
+use App\Services\Settings\UserPasswordService;
 use App\Support\PasswordPolicy;
-use App\Support\Roles;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Spatie\Permission\Models\Role;
 
 class UsersTab extends Component
 {
-    use WithPagination;
+    use InteractsWithTableFilters, WithPagination;
 
-    public string $search = '';
+    #[Url]
+    public string $filterName = '';
 
+    #[Url]
+    public string $filterEmail = '';
+
+    #[Url]
     public string $roleFilter = '';
+
+    #[Url]
+    public string $filterDivisionId = '';
+
+    #[Url]
+    public string $filterStatus = '';
 
     public bool $showModal = false;
 
@@ -37,21 +50,35 @@ class UsersTab extends Component
 
     public bool $is_active = true;
 
-    protected $queryString = ['search', 'roleFilter'];
+    public bool $showResetModal = false;
+
+    public ?string $resetUserId = null;
+
+    public string $resetUserName = '';
+
+    public string $resetUserEmail = '';
+
+    public string $resetPassword = '';
+
+    public string $resetPasswordConfirmation = '';
+
+    /** Shown once after a successful reset so the admin can copy it. */
+    public ?string $resetPasswordResult = null;
 
     public function mount(): void
     {
         Gate::authorize('users.view');
     }
 
-    public function updatingSearch(): void
+    public function resetFilters(): void
     {
-        $this->resetPage();
-    }
-
-    public function updatingRoleFilter(): void
-    {
-        $this->resetPage();
+        $this->resetTableFilters([
+            'filterName',
+            'filterEmail',
+            'roleFilter',
+            'filterDivisionId',
+            'filterStatus',
+        ]);
     }
 
     public function openCreate(): void
@@ -162,6 +189,77 @@ class UsersTab extends Component
         session()->flash('status', $user->is_active ? 'User activated.' : 'User deactivated.');
     }
 
+    public function openResetPassword(string $userId): void
+    {
+        Gate::authorize('users.reset-password');
+
+        $user = User::query()->findOrFail($userId);
+
+        $this->resetUserId = $user->id;
+        $this->resetUserName = $user->name;
+        $this->resetUserEmail = $user->email;
+        $this->resetPassword = '';
+        $this->resetPasswordConfirmation = '';
+        $this->resetPasswordResult = null;
+        $this->resetErrorBag('resetPassword', 'resetPasswordConfirmation');
+        $this->showResetModal = true;
+    }
+
+    public function generateResetPassword(UserPasswordService $service): void
+    {
+        Gate::authorize('users.reset-password');
+
+        $generated = $service->generatePlainPassword();
+
+        if ($this->showResetModal) {
+            $this->resetPassword = $generated;
+            $this->resetPasswordConfirmation = $generated;
+            $this->resetPasswordResult = null;
+        } else {
+            $this->password = $generated;
+        }
+    }
+
+    public function applyResetPassword(UserPasswordService $service): void
+    {
+        Gate::authorize('users.reset-password');
+
+        $this->validate([
+            'resetPassword' => ['required', PasswordPolicy::rule()],
+            'resetPasswordConfirmation' => ['required', 'same:resetPassword'],
+        ], [], [
+            'resetPassword' => 'password',
+            'resetPasswordConfirmation' => 'password confirmation',
+        ]);
+
+        $user = User::query()->findOrFail($this->resetUserId);
+
+        $plain = $this->resetPassword;
+        $service->reset($user, $plain);
+
+        $this->resetPassword = '';
+        $this->resetPasswordConfirmation = '';
+        $this->resetPasswordResult = $plain;
+
+        session()->flash(
+            'status',
+            "Password reset for {$user->name}. The user must change it on next login."
+        );
+    }
+
+    public function closeResetPasswordModal(): void
+    {
+        $this->showResetModal = false;
+        $this->reset([
+            'resetUserId',
+            'resetUserName',
+            'resetUserEmail',
+            'resetPassword',
+            'resetPasswordConfirmation',
+            'resetPasswordResult',
+        ]);
+    }
+
     protected function resetForm(): void
     {
         $this->reset(['editingUserId', 'name', 'email', 'password', 'role_name', 'division_id']);
@@ -170,17 +268,25 @@ class UsersTab extends Component
 
     public function render()
     {
-        $users = User::query()
-            ->with(['division', 'roles'])
-            ->when($this->search !== '', function ($q) {
-                $q->where(function ($inner) {
-                    $inner->where('name', 'like', '%'.$this->search.'%')
-                        ->orWhere('email', 'like', '%'.$this->search.'%');
-                });
-            })
-            ->when($this->roleFilter !== '', fn ($q) => $q->role($this->roleFilter))
-            ->orderBy('name')
-            ->paginate(12);
+        $query = User::query()
+            ->with(['division', 'roles']);
+
+        $this->applyLikeFilter($query, 'name', $this->filterName);
+        $this->applyLikeFilter($query, 'email', $this->filterEmail);
+
+        if ($this->roleFilter !== '') {
+            $query->role($this->roleFilter);
+        }
+
+        $this->applyExactFilter($query, 'division_id', $this->filterDivisionId);
+
+        if ($this->filterStatus !== '') {
+            $query->where('is_active', $this->filterStatus === 'active');
+        }
+
+        $this->applyCreatedAtFilter($query);
+
+        $users = $query->orderBy('name')->paginate(12);
 
         return view('livewire.settings.users-tab', [
             'users' => $users,

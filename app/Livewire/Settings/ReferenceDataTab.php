@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Settings;
 
+use App\Livewire\Concerns\InteractsWithTableFilters;
 use App\Models\Settings\ApprovalRouting;
 use App\Models\Settings\CostCenter;
 use App\Models\Settings\Department;
@@ -15,6 +16,7 @@ use App\Models\Settings\ProcurementThreshold;
 use App\Models\Settings\UacsCode;
 use App\Models\User;
 use App\Support\Roles;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -29,8 +31,13 @@ use Livewire\Component;
  */
 class ReferenceDataTab extends Component
 {
+    use InteractsWithTableFilters;
+
     #[Url(as: 'entity')]
     public string $entity = 'departments';
+
+    /** @var array<string, string> */
+    public array $columnFilters = [];
 
     public array $form = [];
 
@@ -50,7 +57,14 @@ class ReferenceDataTab extends Component
     public function selectEntity(string $entity): void
     {
         $this->entity = $entity;
+        $this->resetFilters();
         $this->closeModal();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->columnFilters = [];
+        $this->reset('dateFrom', 'dateTo');
     }
 
     public function openCreate(): void
@@ -290,11 +304,37 @@ class ReferenceDataTab extends Component
         };
     }
 
+    /** @param  array<string, array{type: string, label: string, options?: array|string, nullable?: bool}>  $fields */
+    protected function applyColumnFilters(Builder $query, array $fields): Builder
+    {
+        foreach ($fields as $key => $field) {
+            $value = trim($this->columnFilters[$key] ?? '');
+
+            if ($value === '') {
+                continue;
+            }
+
+            match ($field['type']) {
+                'boolean' => $query->where($key, $value === '1'),
+                'select', 'select-static' => $query->where($key, $value),
+                'decimal', 'number' => $this->applyAmountFilter($query, $key, $value),
+                'date' => $query->whereDate($key, $value),
+                default => $query->where($key, 'like', '%'.$value.'%'),
+            };
+        }
+
+        return $query;
+    }
+
     public function render()
     {
         $config = $this->entities()[$this->entity];
 
-        $records = $config['model']::query()->latest('created_at')->get();
+        $query = $config['model']::query();
+        $this->applyColumnFilters($query, $config['fields']);
+        $this->applyCreatedAtFilter($query);
+
+        $records = $query->latest('created_at')->get();
 
         $options = collect($config['fields'])
             ->filter(fn ($field) => $field['type'] === 'select')

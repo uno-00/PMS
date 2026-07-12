@@ -27,6 +27,8 @@
                     @livewire('settings.security-tab')
                 @elseif($tab === 'integrations')
                     @livewire('settings.integrations-tab')
+                @elseif($tab === 'modules')
+                    @livewire('settings.modules-tab')
                 @elseif($tab === 'users')
                     @livewire('settings.users-tab')
                 @elseif($tab === 'rbac')

@@ -13,13 +13,14 @@ use App\Models\Settings\Office;
 use App\Models\Settings\Pap;
 use App\Models\Settings\UacsCode;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class BudgetAllocation extends Model
 {
-    use HasAuditLog, HasUuid;
+    use HasAuditLog, HasFactory, HasUuid;
 
     protected $fillable = [
         'fiscal_year_id', 'parent_id', 'gaa_id', 'level', 'department_id', 'division_id',

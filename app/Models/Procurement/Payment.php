@@ -6,12 +6,17 @@ use App\Models\Concerns\HasAuditLog;
 use App\Models\Concerns\HasDocuments;
 use App\Models\Concerns\HasUuid;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Payment extends Model
 {
-    use HasAuditLog, HasDocuments, HasUuid;
+    use HasAuditLog, HasDocuments, HasFactory, HasUuid;
+
+    public const METHODS = ['check', 'bank_transfer', 'ada'];
+
+    public const STATUSES = ['pending', 'processed', 'released'];
 
     protected $fillable = ['purchase_order_id', 'or_no', 'amount', 'payment_date', 'method', 'status', 'processed_by'];
 

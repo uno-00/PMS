@@ -10,48 +10,62 @@
         @endforeach
     </div>
 
-    <div class="mb-4 flex flex-wrap gap-2">
-        <input wire:model.live.debounce.400ms="search" type="text" placeholder="Search company name..." class="rounded-lg border-slate-300 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white">
-        <select wire:model.live="status" class="rounded-lg border-slate-300 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white">
-            <option value="">All statuses</option>
-            <option value="pending">Pending</option>
-            <option value="verified">Verified</option>
-            <option value="suspended">Suspended</option>
-            <option value="rejected">Rejected</option>
-        </select>
-    </div>
+    <x-card>
+        <x-table.filter-toolbar>Use the column filters below to search bidder records.</x-table.filter-toolbar>
 
-    @if($bidders->isEmpty())
-        <x-empty-state icon="building-office" title="No bidders registered yet" />
-    @else
-        <x-card>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
-                    <thead>
-                        <tr class="text-left text-xs uppercase text-slate-400">
-                            <th class="py-2 pr-4">Company</th>
-                            <th class="py-2 pr-4">Contact Person</th>
-                            <th class="py-2 pr-4">Email</th>
-                            <th class="py-2 pr-4">PhilGEPS No.</th>
-                            <th class="py-2 pr-4">Status</th>
-                            <th class="py-2 pr-4"></th>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+                <thead>
+                    <tr class="text-left text-xs uppercase text-slate-400">
+                        <th class="py-2 pr-4">Company</th>
+                        <th class="py-2 pr-4">Contact Person</th>
+                        <th class="py-2 pr-4">Email</th>
+                        <th class="py-2 pr-4">PhilGEPS No.</th>
+                        <th class="py-2 pr-4">Status</th>
+                        <th class="py-2 pr-4">Date Created</th>
+                        <th class="py-2 pr-4"></th>
+                    </tr>
+                    <tr class="border-b border-slate-100 dark:border-slate-800">
+                        <th class="pb-3 pr-4 pt-1"><x-table.filter-text model="filterCompany" /></th>
+                        <th class="pb-3 pr-4 pt-1"><x-table.filter-text model="filterContactPerson" /></th>
+                        <th class="pb-3 pr-4 pt-1"><x-table.filter-text model="filterEmail" /></th>
+                        <th class="pb-3 pr-4 pt-1"><x-table.filter-text model="filterPhilgepsNo" /></th>
+                        <th class="pb-3 pr-4 pt-1">
+                            <x-table.filter-select model="status">
+                                <option value="pending">Pending</option>
+                                <option value="verified">Verified</option>
+                                <option value="suspended">Suspended</option>
+                                <option value="rejected">Rejected</option>
+                            </x-table.filter-select>
+                        </th>
+                        <th class="pb-3 pr-4 pt-1"><x-table.filter-dates /></th>
+                        <th class="pb-3 pr-4 pt-1"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @forelse($bidders as $bidder)
+                        <tr wire:key="bidder-{{ $bidder->id }}">
+                            <td class="py-3 pr-4 font-medium text-slate-700 dark:text-slate-200">{{ $bidder->company_name }}</td>
+                            <td class="py-3 pr-4">{{ $bidder->contact_person }}</td>
+                            <td class="py-3 pr-4">{{ $bidder->email }}</td>
+                            <td class="py-3 pr-4 font-mono text-xs">{{ $bidder->philgeps_registration_no ?? '—' }}</td>
+                            <td class="py-3 pr-4"><x-status-badge :status="new \App\Support\SimpleStatus($bidder->status)" /></td>
+                            <td class="py-3 pr-4 text-xs text-slate-500">{{ $bidder->created_at?->format('M d, Y') }}</td>
+                            <td class="py-3 pr-4 text-right"><x-button href="{{ route('bidders.show', $bidder) }}" variant="secondary" size="sm">View</x-button></td>
                         </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                        @foreach($bidders as $bidder)
-                            <tr>
-                                <td class="py-3 pr-4 font-medium text-slate-700 dark:text-slate-200">{{ $bidder->company_name }}</td>
-                                <td class="py-3 pr-4">{{ $bidder->contact_person }}</td>
-                                <td class="py-3 pr-4">{{ $bidder->email }}</td>
-                                <td class="py-3 pr-4 font-mono text-xs">{{ $bidder->philgeps_registration_no ?? '—' }}</td>
-                                <td class="py-3 pr-4"><x-status-badge :status="new \App\Support\SimpleStatus($bidder->status)" /></td>
-                                <td class="py-3 pr-4 text-right"><x-button href="{{ route('bidders.show', $bidder) }}" variant="secondary" size="sm">View</x-button></td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="py-10 text-center text-sm text-slate-500 dark:text-slate-400">
+                                No records match your filters.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        @if($bidders->hasPages())
             <div class="mt-4">{{ $bidders->links() }}</div>
-        </x-card>
-    @endif
+        @endif
+    </x-card>
 </div>

@@ -6,6 +6,9 @@ x-app-image: &app-image
     dockerfile: Dockerfile
   image: pms-procurement:latest
   env_file: .env
+  dns:
+    - 8.8.8.8
+    - 8.8.4.4
   depends_on:
     mysql:
       condition: service_healthy

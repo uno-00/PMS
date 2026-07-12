@@ -21,7 +21,10 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, HasRoles, HasUuid, LogsActivity, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, HasRoles {
+        HasRoles::hasPermissionTo as spatieHasPermissionTo;
+    }
+    use HasUuid, LogsActivity, Notifiable, SoftDeletes;
 
     protected $guard_name = 'web';
 
@@ -108,5 +111,40 @@ class User extends Authenticatable
         // Portal) are already full route names; everything else maps into
         // the internal app's dashboard.{type} route.
         return str_contains($key, '.') ? $key : "dashboard.{$key}";
+    }
+
+    /**
+     * Module activation layer. Spatie's Gate::before resolves permissions
+     * through hasPermissionTo before any application Gate callback can run,
+     * so this is the single point where a deactivated module's permissions
+     * are denied for everyone except Super Admin. When a module is toggled
+     * off in Settings > Module Management, every {module}.{action} ability
+     * it defines resolves to false here, which also hides its nav link
+     * (nav is @can-gated) and denies its routes/policies. Super Admin is
+     * always exempt so an administrator can never lock themselves out.
+     */
+    public function hasPermissionTo($permission, $guardName = null): bool
+    {
+        $granted = $this->spatieHasPermissionTo($permission, $guardName);
+
+        if (! $granted || $this->hasRole(\App\Support\Roles::SUPER_ADMIN)) {
+            return $granted;
+        }
+
+        $key = $permission instanceof \Spatie\Permission\Contracts\Permission
+            ? $permission->name
+            : (string) $permission;
+
+        $module = \Illuminate\Support\Str::before($key, '.');
+
+        if (! \App\Support\ModuleRegistry::isToggleable($module)) {
+            return $granted;
+        }
+
+        try {
+            return \App\Support\ModuleState::isActive($module);
+        } catch (\Throwable) {
+            return $granted;
+        }
     }
 }

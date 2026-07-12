@@ -51,14 +51,19 @@ class PpmpPolicy extends BasePolicy
         return $user->can('ppmp.review-planning');
     }
 
-    public function budgetValidate(User $user): bool
-    {
-        return $user->can('ppmp.validate-budget');
-    }
-
     public function bacConsolidate(User $user): bool
     {
         return $user->can('ppmp.consolidate-bac');
+    }
+
+    public function procurementModeReview(User $user): bool
+    {
+        return $user->can('ppmp.recommend-procurement-mode');
+    }
+
+    public function budgetValidate(User $user): bool
+    {
+        return $user->can('ppmp.validate-budget');
     }
 
     public function approve(User $user): bool

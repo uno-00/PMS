@@ -25,6 +25,7 @@ class Index extends Component
         'reference-data' => ['label' => 'Reference Data & Thresholds', 'icon' => 'clipboard', 'permission' => 'settings.manage'],
         'security' => ['label' => 'Security', 'icon' => 'shield-check', 'permission' => 'settings.manage'],
         'integrations' => ['label' => 'Integrations', 'icon' => 'globe', 'permission' => 'settings.manage'],
+        'modules' => ['label' => 'Module Management', 'icon' => 'view-grid', 'permission' => 'settings.manage'],
         'users' => ['label' => 'Users', 'icon' => 'users', 'permission' => 'users.view'],
         'rbac' => ['label' => 'Roles & Permissions', 'icon' => 'key', 'permission' => 'users.manage-roles'],
     ];

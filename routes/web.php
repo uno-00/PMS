@@ -1,12 +1,14 @@
 <?php
 
 use App\Http\Controllers\DocumentDownloadController;
+use App\Http\Controllers\GaaTemplateController;
 use App\Http\Controllers\Pdf\CafPdfController;
 use App\Http\Controllers\Pdf\GaaPdfController;
 use App\Http\Controllers\Pdf\NoticeOfAwardPdfController;
 use App\Http\Controllers\Pdf\NoticeToProceedPdfController;
 use App\Http\Controllers\Pdf\MarketScopingPdfController;
 use App\Http\Controllers\Pdf\PpmpPdfController;
+use App\Http\Controllers\Pdf\ProjectProposalPdfController;
 use App\Http\Controllers\Pdf\PurchaseOrderPdfController;
 use App\Http\Controllers\Pdf\PurchaseRequestPdfController;
 use App\Http\Controllers\Verify\DocumentVerificationController;
@@ -14,11 +16,16 @@ use App\Livewire\AuditTrail\Index as AuditTrailIndex;
 use App\Livewire\Auth\ForcePasswordChange;
 use App\Livewire\Auth\Login;
 use App\Livewire\Bac\BidEvaluationShow;
+use App\Livewire\Bac\CalendarEventForm;
+use App\Livewire\Bac\CalendarEventShow;
 use App\Livewire\Bac\CalendarIndex;
 use App\Livewire\Bac\MemberIndex;
+use App\Livewire\Bac\PhilgepsForm;
 use App\Livewire\Bac\PhilgepsIndex;
+use App\Livewire\Bac\PhilgepsShow;
 use App\Livewire\Bac\ProcurementIndex;
 use App\Livewire\Bac\ProcurementShow;
+use App\Livewire\Budget\AllocationForm;
 use App\Livewire\Budget\AllocationIndex;
 use App\Livewire\Caf\CafIndex;
 use App\Livewire\Caf\CafShow;
@@ -27,7 +34,9 @@ use App\Livewire\Gaa\Index as GaaIndex;
 use App\Livewire\Gaa\Show as GaaShow;
 use App\Livewire\Gaa\Upload as GaaUpload;
 use App\Livewire\Help\Index as HelpIndex;
+use App\Livewire\Payment\PaymentForm;
 use App\Livewire\Payment\PaymentIndex;
+use App\Livewire\Payment\PaymentShow;
 use App\Livewire\Planning\AppShow;
 use App\Livewire\Planning\MarketScopingForm;
 use App\Livewire\Planning\MarketScopingIndex;
@@ -35,6 +44,11 @@ use App\Livewire\Planning\MarketScopingShow;
 use App\Livewire\Planning\PpmpForm;
 use App\Livewire\Planning\PpmpIndex;
 use App\Livewire\Planning\PpmpShow;
+use App\Livewire\Planning\ProjectProposalForm;
+use App\Livewire\Planning\ProjectProposalIndex;
+use App\Livewire\Planning\ProjectProposalShow;
+use App\Livewire\Planning\ProjectProposalWizardMarketScoping;
+use App\Livewire\Planning\ProjectProposalWizardPpmp;
 use App\Livewire\PurchaseOrder\PurchaseOrderIndex;
 use App\Livewire\PurchaseOrder\PurchaseOrderShow;
 use App\Livewire\PurchaseRequest\PurchaseRequestForm;
@@ -85,6 +99,7 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('gaa')->name('gaa.')->group(function () {
             Route::get('/', GaaIndex::class)->name('index');
             Route::get('/create', GaaUpload::class)->name('create');
+            Route::get('/template/download', GaaTemplateController::class)->name('template');
             Route::get('/{gaa}', GaaShow::class)->name('show');
             Route::get('/{gaa}/print', GaaPdfController::class)->name('print');
         });
@@ -93,7 +108,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/app/{fiscalYear?}', AppShow::class)->name('app.show');
 
         // Phase 3: Budget Allocation
-        Route::get('/budget-allocations', AllocationIndex::class)->name('budget-allocations.index');
+        Route::prefix('budget-allocations')->name('budget-allocations.')->group(function () {
+            Route::get('/', AllocationIndex::class)->name('index');
+            Route::get('/create', AllocationForm::class)->name('create');
+            Route::get('/{allocation}/edit', AllocationForm::class)->name('edit');
+        });
 
         // Market Scoping Checklist
         Route::prefix('market-scoping')->name('market-scoping.')->group(function () {
@@ -102,6 +121,17 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{marketScoping}/edit', MarketScopingForm::class)->name('edit');
             Route::get('/{marketScoping}', MarketScopingShow::class)->name('show');
             Route::get('/{marketScoping}/print', MarketScopingPdfController::class)->name('print');
+        });
+
+        // Project Proposal (NMP-PP-01) — 3-step Indicative PPMP pipeline
+        Route::prefix('project-proposals')->name('project-proposals.')->group(function () {
+            Route::get('/', ProjectProposalIndex::class)->name('index');
+            Route::get('/create', ProjectProposalForm::class)->name('create');
+            Route::get('/{projectProposal}/edit', ProjectProposalForm::class)->name('edit');
+            Route::get('/{projectProposal}/market-scoping', ProjectProposalWizardMarketScoping::class)->name('wizard.market-scoping');
+            Route::get('/{projectProposal}/indicative-ppmp', ProjectProposalWizardPpmp::class)->name('wizard.indicative-ppmp');
+            Route::get('/{projectProposal}', ProjectProposalShow::class)->name('show');
+            Route::get('/{projectProposal}/print', ProjectProposalPdfController::class)->name('print');
         });
 
         // Phase 4: PPMP
@@ -137,9 +167,19 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{procurement}/noa/print', NoticeOfAwardPdfController::class)->name('noa.print');
             Route::get('/{procurement}/ntp/print', NoticeToProceedPdfController::class)->name('ntp.print');
         });
-        Route::get('/bac-calendar', CalendarIndex::class)->name('bac-calendar.index');
+        Route::prefix('bac-calendar')->name('bac-calendar.')->group(function () {
+            Route::get('/', CalendarIndex::class)->name('index');
+            Route::get('/create', CalendarEventForm::class)->name('create');
+            Route::get('/{calendarEvent}/edit', CalendarEventForm::class)->name('edit');
+            Route::get('/{calendarEvent}', CalendarEventShow::class)->name('show');
+        });
         Route::get('/bac-members', MemberIndex::class)->name('bac-members.index');
-        Route::get('/philgeps-postings', PhilgepsIndex::class)->name('philgeps.index');
+        Route::prefix('philgeps')->name('philgeps.')->group(function () {
+            Route::get('/', PhilgepsIndex::class)->name('index');
+            Route::get('/create', PhilgepsForm::class)->name('create');
+            Route::get('/{posting}/edit', PhilgepsForm::class)->name('edit');
+            Route::get('/{posting}', PhilgepsShow::class)->name('show');
+        });
 
         Route::prefix('bidders')->name('bidders.')->group(function () {
             Route::get('/', BidderIndex::class)->name('index');
@@ -152,7 +192,12 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{purchase_order}/print', PurchaseOrderPdfController::class)->name('print');
         });
 
-        Route::get('/payments', PaymentIndex::class)->name('payments.index');
+        Route::prefix('payments')->name('payments.')->group(function () {
+            Route::get('/', PaymentIndex::class)->name('index');
+            Route::get('/create', PaymentForm::class)->name('create');
+            Route::get('/{payment}/edit', PaymentForm::class)->name('edit');
+            Route::get('/{payment}', PaymentShow::class)->name('show');
+        });
 
         Route::get('/reports', ReportsIndex::class)->name('reports.index');
         Route::get('/audit-trail', AuditTrailIndex::class)->name('audit-trail.index');

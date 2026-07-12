@@ -1,5 +1,5 @@
 <div>
-    <x-page-header title="Help & User Manuals" subtitle="Purpose, step-by-step guides, workflow, common errors, FAQs, approval process, and tips for every module." />
+    <x-page-header title="Help & User Manuals" subtitle="Step-by-step guides with real system screenshots for every module. Pick a module or role manual below." />
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-4">
         <nav class="space-y-4 lg:col-span-1">
@@ -36,25 +36,26 @@
 
         <div class="lg:col-span-3">
             <x-card :title="$active['label']">
-                <div class="space-y-6">
+                <div class="space-y-8">
                     <div>
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-400">Purpose</h4>
-                        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">{{ $active['purpose'] }}</p>
+                        <p class="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-300">{{ $active['purpose'] }}</p>
                     </div>
 
                     <div>
-                        <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-400">Step-by-Step Guide</h4>
-                        <ol class="mt-2 list-decimal space-y-1.5 pl-5 text-sm text-slate-600 dark:text-slate-300">
-                            @foreach($active['steps'] as $step)
-                                <li>{{ $step }}</li>
+                        <div class="mb-3 flex items-center justify-between gap-2">
+                            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-400">Step-by-Step Guide</h4>
+                            <span class="text-xs text-slate-400">{{ count($active['steps']) }} steps · click screenshots to enlarge</span>
+                        </div>
+                        <div class="space-y-4">
+                            @foreach($active['steps'] as $i => $step)
+                                <x-help.step
+                                    :number="$i + 1"
+                                    :text="$step['text']"
+                                    :screenshot="$step['screenshot'] ?? null"
+                                    :caption="$step['caption'] ?? null"
+                                />
                             @endforeach
-                        </ol>
-                    </div>
-
-                    <div>
-                        <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-400">Screenshots</h4>
-                        <div class="mt-2 flex h-32 items-center justify-center rounded-lg border-2 border-dashed border-slate-200 text-xs text-slate-400 dark:border-slate-700">
-                            Screenshot placeholder — captured during UAT
                         </div>
                     </div>
 
@@ -62,7 +63,7 @@
                         <div>
                             <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-400">Workflow Diagram</h4>
                             <div class="mt-2 flex flex-wrap items-center gap-2">
-                                @foreach($active['workflow'] as $i => $step)
+                                @foreach($active['workflow'] as $step)
                                     <span class="rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">{{ $step }}</span>
                                     @if(!$loop->last)
                                         <x-icon name="arrow-left" class="h-3 w-3 rotate-180 text-slate-300" />
@@ -74,25 +75,27 @@
 
                     <div>
                         <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-400">Approval Process</h4>
-                        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">{{ $active['approval'] }}</p>
+                        <p class="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-300">{{ $active['approval'] }}</p>
                     </div>
 
-                    <div>
-                        <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-400">Common Errors</h4>
-                        <ul class="mt-2 list-disc space-y-1.5 pl-5 text-sm text-slate-600 dark:text-slate-300">
-                            @foreach($active['errors'] as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <div>
+                            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-400">Common Errors</h4>
+                            <ul class="mt-2 list-disc space-y-1.5 pl-5 text-sm text-slate-600 dark:text-slate-300">
+                                @foreach($active['errors'] as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
 
-                    <div>
-                        <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-400">FAQs</h4>
-                        <ul class="mt-2 list-disc space-y-1.5 pl-5 text-sm text-slate-600 dark:text-slate-300">
-                            @foreach($active['faqs'] as $faq)
-                                <li>{{ $faq }}</li>
-                            @endforeach
-                        </ul>
+                        <div>
+                            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-400">FAQs</h4>
+                            <ul class="mt-2 list-disc space-y-1.5 pl-5 text-sm text-slate-600 dark:text-slate-300">
+                                @foreach($active['faqs'] as $faq)
+                                    <li>{{ $faq }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
                     </div>
 
                     <div class="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
