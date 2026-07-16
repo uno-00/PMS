@@ -3,6 +3,8 @@
 namespace App\Livewire\Planning;
 
 use App\Enums\PpmpDocumentType;
+use App\Enums\PpmpExpenseClass;
+use App\Enums\PpmpProjectType;
 use App\Enums\PpmpStatus;
 use App\Enums\PreProcurementConference;
 use App\Models\Budget\BudgetAllocation;
@@ -36,13 +38,15 @@ class PpmpForm extends Component
     {
         if ($ppmp && $ppmp->exists) {
             Gate::authorize('update', $ppmp);
-            $this->ppmp = $ppmp;
+            $this->ppmp = $ppmp->load('projectProposal');
             $this->title = $ppmp->title;
             $this->document_type = $ppmp->document_type?->value ?? PpmpDocumentType::Indicative->value;
             $this->fiscal_year_id = $ppmp->fiscal_year_id;
             $this->division_id = $ppmp->division_id;
             $this->items = $ppmp->items()->orderBy('item_no')->get()->map(fn ($i) => [
                 'id' => $i->id,
+                'expense_class' => $i->expense_class?->value ?? PpmpExpenseClass::Mooe->value,
+                'project_type' => $i->project_type?->value ?? PpmpProjectType::Goods->value,
                 'item_name' => $i->item_name,
                 'description' => $i->description,
                 'specification' => $i->specification,
@@ -65,14 +69,16 @@ class PpmpForm extends Component
         }
 
         if (empty($this->items)) {
-            $this->addItem();
+            $this->addItem(PpmpExpenseClass::Mooe->value);
         }
     }
 
-    public function addItem(): void
+    public function addItem(string $expenseClass = PpmpExpenseClass::Mooe->value): void
     {
         $this->items[] = [
             'id' => null,
+            'expense_class' => $expenseClass,
+            'project_type' => PpmpProjectType::Goods->value,
             'item_name' => '',
             'description' => '',
             'specification' => '',
@@ -97,13 +103,20 @@ class PpmpForm extends Component
         }
     }
 
+    public function updated($property): void
+    {
+        if (preg_match('/^items\.(\d+)\.expense_class$/', (string) $property, $matches)) {
+            $this->focusItem((int) $matches[1]);
+        }
+    }
+
     public function removeItem(int $index): void
     {
         unset($this->items[$index]);
         $this->items = array_values($this->items);
 
         if ($this->items === []) {
-            $this->addItem();
+            $this->addItem(PpmpExpenseClass::Mooe->value);
 
             return;
         }
@@ -114,11 +127,44 @@ class PpmpForm extends Component
         }
     }
 
+    /** @return array<int, array{index: int, item: array<string, mixed>}> */
+    public function itemsForExpenseClass(string $expenseClass): array
+    {
+        return collect($this->items)
+            ->map(fn (array $item, int $index) => ['index' => $index, 'item' => $item])
+            ->filter(fn (array $row) => ($row['item']['expense_class'] ?? PpmpExpenseClass::Mooe->value) === $expenseClass)
+            ->values()
+            ->all();
+    }
+
+    public function sectionAbc(string $expenseClass): float
+    {
+        return (float) collect($this->items)
+            ->filter(fn (array $row) => ($row['expense_class'] ?? PpmpExpenseClass::Mooe->value) === $expenseClass)
+            ->sum(fn (array $row) => self::lineAbc($row));
+    }
+
     public function getTotalAbcProperty(): float
     {
-        return (float) collect($this->items)->sum(
-            fn (array $row) => (float) ($row['quantity'] ?: 0) * (float) ($row['estimated_unit_cost'] ?: 0)
-        );
+        return (float) collect($this->items)->sum(fn (array $row) => self::lineAbc($row));
+    }
+
+    public function getProjectProposalTotalCostProperty(): ?float
+    {
+        $total = $this->ppmp?->projectProposal?->total_cost;
+
+        return $total !== null ? (float) $total : null;
+    }
+
+    public function getRemainingFundProperty(): ?float
+    {
+        $total = $this->projectProposalTotalCost;
+
+        if ($total === null) {
+            return null;
+        }
+
+        return round($total - $this->totalAbc, 2);
     }
 
     /** @param  array<string, mixed>  $row */
@@ -135,6 +181,8 @@ class PpmpForm extends Component
             'fiscal_year_id' => ['required', 'exists:fiscal_years,id'],
             'division_id' => ['required', 'exists:divisions,id'],
             'items' => ['required', 'array', 'min:1'],
+            'items.*.expense_class' => ['required', 'in:mooe,capital_outlay'],
+            'items.*.project_type' => ['required', 'in:goods,infrastructure,consulting'],
             'items.*.item_name' => ['required', 'string', 'max:255'],
             'items.*.unit' => ['required', 'string', 'max:50'],
             'items.*.quantity' => ['required', 'numeric', 'min:0.01'],
@@ -151,7 +199,7 @@ class PpmpForm extends Component
     {
         $this->validate();
 
-        $allocations = BudgetAllocation::query()->whereIn('id', collect($this->items)->pluck('budget_allocation_id'))->get()->keyBy('id');
+        $allocations = BudgetAllocation::query()->whereIn('id', collect($this->items)->pluck('budget_allocation_id')->filter())->get()->keyBy('id');
 
         if ($this->ppmp) {
             $this->ppmp->update([
@@ -176,29 +224,32 @@ class PpmpForm extends Component
         $keptIds = [];
 
         foreach ($this->items as $i => $row) {
-            $allocation = $allocations->get($row['budget_allocation_id']);
+            $budgetAllocationId = filled($row['budget_allocation_id']) ? $row['budget_allocation_id'] : null;
+            $allocation = $budgetAllocationId ? $allocations->get($budgetAllocationId) : null;
 
             $payload = [
                 'item_no' => $i + 1,
+                'expense_class' => $row['expense_class'],
+                'project_type' => $row['project_type'],
                 'item_name' => $row['item_name'],
-                'description' => $row['description'],
-                'specification' => $row['specification'],
+                'description' => $row['description'] ?: null,
+                'specification' => $row['specification'] ?: null,
                 'unit' => $row['unit'],
                 'quantity' => $row['quantity'],
                 'estimated_unit_cost' => $row['estimated_unit_cost'],
                 'schedule_start' => $row['schedule_start'] ?: null,
                 'schedule_end' => $row['schedule_end'] ?: null,
-                'mode_of_procurement_id' => $row['mode_of_procurement_id'] ?: null,
-                'pre_procurement_conference' => $row['pre_procurement_conference'] ?: null,
+                'mode_of_procurement_id' => filled($row['mode_of_procurement_id']) ? $row['mode_of_procurement_id'] : null,
+                'pre_procurement_conference' => filled($row['pre_procurement_conference']) ? $row['pre_procurement_conference'] : null,
                 'fund_source_id' => $allocation?->fund_source_id,
                 'pap_id' => $allocation?->pap_id,
                 'uacs_code_id' => $allocation?->uacs_code_id,
-                'budget_allocation_id' => $row['budget_allocation_id'],
-                'remarks' => $row['remarks'],
+                'budget_allocation_id' => $budgetAllocationId,
+                'remarks' => $row['remarks'] ?: null,
             ];
 
             if (! empty($row['id'])) {
-                $ppmp->items()->where('id', $row['id'])->update($payload);
+                $ppmp->items()->findOrFail($row['id'])->update($payload);
                 $keptIds[] = $row['id'];
             } else {
                 $item = $ppmp->items()->create($payload);
@@ -206,7 +257,7 @@ class PpmpForm extends Component
             }
         }
 
-        $ppmp->items()->whereNotIn('id', $keptIds)->delete();
+        $ppmp->items()->whereNotIn('id', $keptIds)->get()->each->delete();
         $ppmp->recalculateTotal();
 
         session()->flash('status', 'PPMP saved as draft.');
@@ -231,6 +282,8 @@ class PpmpForm extends Component
             'allocations' => $allocations,
             'preProcurementOptions' => PreProcurementConference::options(),
             'documentTypeOptions' => PpmpDocumentType::options(),
+            'expenseClassOptions' => PpmpExpenseClass::options(),
+            'projectTypeOptions' => PpmpProjectType::options(),
         ])
             ->layout('components.layouts.app', ['title' => $this->ppmp ? 'Edit PPMP' : 'New PPMP']);
     }

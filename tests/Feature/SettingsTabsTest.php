@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Settings\ModeOfProcurement;
+use App\Models\Settings\ProcurementThreshold;
 use App\Models\User;
 use App\Support\Roles;
 use App\Support\ThemeSettings;
@@ -68,6 +70,37 @@ class SettingsTabsTest extends TestCase
             ->assertHasNoErrors();
 
         $this->assertTrue($role->fresh()->hasPermissionTo($permission));
+    }
+
+    public function test_super_admin_can_save_procurement_threshold(): void
+    {
+        $this->seed(\Database\Seeders\ReferenceDataSeeder::class);
+
+        $user = User::factory()->create();
+        $user->assignRole(Roles::SUPER_ADMIN);
+
+        $modeId = ModeOfProcurement::query()->value('id');
+
+        Livewire::actingAs($user)
+            ->test(\App\Livewire\Settings\ReferenceDataTab::class, ['entity' => 'thresholds'])
+            ->call('openCreate')
+            ->set('form.mode_of_procurement_id', $modeId)
+            ->set('form.category', 'goods')
+            ->set('form.min_amount', '1000')
+            ->set('form.max_amount', '50000')
+            ->set('form.effective_date', '2026-01-01')
+            ->set('form.is_active', true)
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $threshold = ProcurementThreshold::query()
+            ->where('mode_of_procurement_id', $modeId)
+            ->where('category', 'goods')
+            ->where('min_amount', 1000)
+            ->where('max_amount', 50000)
+            ->first();
+
+        $this->assertNotNull($threshold);
     }
 
     public function test_viewer_cannot_access_settings(): void

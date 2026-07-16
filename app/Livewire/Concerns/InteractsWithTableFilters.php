@@ -15,7 +15,11 @@ trait InteractsWithTableFilters
 
     public function updating($property): void
     {
-        if ($property !== 'page') {
+        if ($property === 'page' || str_starts_with($property, 'form.')) {
+            return;
+        }
+
+        if (method_exists($this, 'resetPage')) {
             $this->resetPage();
         }
     }

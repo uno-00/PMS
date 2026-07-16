@@ -17,7 +17,8 @@ class AgencyProfile extends Model
     protected $fillable = [
         'name', 'acronym', 'agency_code', 'address', 'region', 'tin',
         'head_of_agency', 'hope_position', 'bac_chairperson', 'logo_path',
-        'website', 'contact_email', 'contact_phone', 'philgeps_organization_id',
+        'login_background_path', 'website', 'contact_email', 'contact_phone',
+        'philgeps_organization_id',
     ];
 
     public static function current(): self
@@ -56,6 +57,25 @@ class AgencyProfile extends Model
 
         // Relative path keeps the current host/port (e.g. :8001 in local dev).
         return '/storage/'.str_replace('\\', '/', $this->logo_path);
+    }
+
+    public function loginBackgroundUrl(): ?string
+    {
+        if ($this->login_background_path && Storage::disk('public')->exists($this->login_background_path)) {
+            return '/storage/'.str_replace('\\', '/', $this->login_background_path);
+        }
+
+        $defaultPath = public_path('images/defaults/brhmc-login-background.jpg');
+
+        return is_file($defaultPath)
+            ? '/images/defaults/brhmc-login-background.jpg'
+            : null;
+    }
+
+    public function hasCustomLoginBackground(): bool
+    {
+        return $this->login_background_path !== null
+            && Storage::disk('public')->exists($this->login_background_path);
     }
 
     public function initials(): string

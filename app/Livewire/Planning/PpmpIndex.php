@@ -7,6 +7,7 @@ use App\Livewire\Concerns\InteractsWithTableFilters;
 use App\Models\Planning\Ppmp;
 use App\Models\Settings\Division;
 use App\Models\Settings\FiscalYear;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
@@ -40,9 +41,16 @@ class PpmpIndex extends Component
     #[Url]
     public string $status = '';
 
-    public function mount(): void
+    public ?string $presetDocumentType = null;
+
+    public function mount(?string $documentType = null): void
     {
         Gate::authorize('viewAny', Ppmp::class);
+
+        if ($documentType) {
+            $this->presetDocumentType = $documentType;
+            $this->filterDocumentType = $documentType;
+        }
     }
 
     public function resetFilters(): void
@@ -58,11 +66,28 @@ class PpmpIndex extends Component
         ]);
     }
 
+    protected function applyLineAbcFilter(Builder $query, ?string $value): Builder
+    {
+        if ($value === null || $value === '') {
+            return $query;
+        }
+
+        $amount = (float) str_replace(',', '', $value);
+
+        if ($amount <= 0) {
+            return $query;
+        }
+
+        return $query->whereRaw('('.Ppmp::lineAbcTotalSubquery()->toSql().') = ?', [$amount]);
+    }
+
     public function render()
     {
         $user = Auth::user();
 
         $query = Ppmp::query()
+            ->select('ppmps.*')
+            ->selectSub(Ppmp::lineAbcTotalSubquery(), 'line_abc_total')
             ->with(['division', 'fiscalYear'])
             ->when(! $user->hasAnyRole(['Super Admin', 'System Admin', 'Planning Officer', 'Budget Officer', 'HOPE', 'Internal Auditor', 'Viewer']), function ($q) use ($user) {
                 $q->where('division_id', $user->division_id);
@@ -73,7 +98,7 @@ class PpmpIndex extends Component
         $this->applyExactFilter($query, 'document_type', $this->filterDocumentType);
         $this->applyExactFilter($query, 'division_id', $this->filterDivisionId);
         $this->applyExactFilter($query, 'fiscal_year_id', $this->filterFiscalYearId);
-        $this->applyAmountFilter($query, 'total_abc', $this->filterTotalAbc);
+        $this->applyLineAbcFilter($query, $this->filterTotalAbc);
         $this->applyExactFilter($query, 'status', $this->status);
         $this->applyCreatedAtFilter($query);
 
@@ -84,6 +109,10 @@ class PpmpIndex extends Component
             'divisions' => Division::query()->orderBy('name')->get(),
             'fiscalYears' => FiscalYear::query()->orderByDesc('year')->get(),
             'documentTypes' => PpmpDocumentType::options(),
-        ])->layout('components.layouts.app', ['title' => 'Project Procurement Management Plans']);
+        ])->layout('components.layouts.app', ['title' => match ($this->presetDocumentType) {
+            'indicative' => 'Indicative PPMP',
+            'final' => 'Final PPMP',
+            default => 'Project Procurement Management Plans',
+        }]);
     }
 }

@@ -26,6 +26,7 @@ final class ModuleRegistry
             ['key' => 'budget-allocation', 'label' => 'Budget Allocation', 'description' => 'Sub-allocate approved funds to divisions, offices, and cost centers.', 'group' => 'Budget & Planning'],
             ['key' => 'market-scoping', 'label' => 'Market Scoping', 'description' => 'Conduct and document pre-procurement market scoping.', 'group' => 'Budget & Planning'],
             ['key' => 'project-proposal', 'label' => 'Project Proposals', 'description' => 'Three-step indicative PPMP project proposal pipeline.', 'group' => 'Budget & Planning'],
+            ['key' => 'ppmp-consolidation', 'label' => 'PPMP Consolidation', 'description' => 'Consolidate division PPMPs into agency-wide plans, BP2020, and WFP.', 'group' => 'Planning'],
 
             // Procurement
             ['key' => 'ppmp', 'label' => 'Project Procurement Management Plan', 'description' => 'Draft, review, and approve division PPMPs.', 'group' => 'Procurement'],

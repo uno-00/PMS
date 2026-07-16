@@ -65,7 +65,7 @@ return [
 
     'temporary_file_upload' => [
         'disk' => null,
-        'rules' => ['file', 'mimes:xlsx,xls,csv', 'max:10240'],
+        'rules' => ['file', 'mimes:png,jpg,jpeg,gif,webp,svg,xlsx,xls,csv', 'max:10240'],
         'directory' => null,   // Example: 'tmp'                      | Default: 'livewire-tmp'
         'middleware' => null,  // Example: 'throttle:5,1'             | Default: 'throttle:60,1'
         'preview_mimes' => [   // Supported file types for temporary pre-signed file URLs...

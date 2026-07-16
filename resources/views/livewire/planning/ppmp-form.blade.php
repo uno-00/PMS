@@ -64,19 +64,23 @@
                 <div>
                     <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">Procurement Items</h3>
                     <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                        {{ count($items) }} {{ Str::plural('item', count($items)) }} &middot; Total ABC ₱{{ number_format($this->totalAbc, 2) }}
+                        Break down items under MOOE and Capital Outlay. {{ count($items) }} {{ Str::plural('row', count($items)) }} &middot; Total ABC ₱{{ number_format($this->totalAbc, 2) }}
+                        @if($this->projectProposalTotalCost !== null)
+                            &middot; Project cost ₱{{ number_format($this->projectProposalTotalCost, 2) }}
+                            &middot; Remaining <span class="{{ $this->remainingFund < 0 ? 'font-semibold text-red-600 dark:text-red-400' : 'font-semibold text-emerald-700 dark:text-emerald-400' }}">₱{{ number_format($this->remainingFund, 2) }}</span>
+                        @endif
                     </p>
                 </div>
-                <x-button type="button" wire:click="addItem" variant="secondary" size="sm" class="w-full sm:w-auto">
-                    + Add item
-                </x-button>
             </div>
 
             {{-- Mobile item switcher --}}
             @if(count($items) > 1)
                 <div class="mb-4 -mx-1 flex gap-2 overflow-x-auto px-1 pb-1 lg:hidden" role="tablist" aria-label="Procurement items">
                     @foreach($items as $index => $item)
-                        @php $lineAbc = \App\Livewire\Planning\PpmpForm::lineAbc($item); @endphp
+                        @php
+                            $lineAbc = \App\Livewire\Planning\PpmpForm::lineAbc($item);
+                            $sectionLabel = $expenseClassOptions[$item['expense_class'] ?? 'mooe'] ?? 'MOOE';
+                        @endphp
                         <button
                             type="button"
                             wire:click="focusItem({{ $index }})"
@@ -87,6 +91,7 @@
                                     ? 'border-primary-600 bg-primary-50 font-semibold text-primary-800 dark:border-primary-500 dark:bg-primary-900/30 dark:text-primary-200'
                                     : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300' }}"
                         >
+                            <span class="block whitespace-nowrap text-xs opacity-70">{{ $sectionLabel }}</span>
                             <span class="block whitespace-nowrap">#{{ $index + 1 }}</span>
                             <span class="block max-w-[8rem] truncate text-xs font-normal opacity-80">
                                 {{ $item['item_name'] ?: 'Untitled' }}
@@ -99,172 +104,78 @@
                 </div>
             @endif
 
-            <div class="space-y-4 lg:space-y-5">
-                @foreach($items as $index => $item)
-                    @php $lineAbc = \App\Livewire\Planning\PpmpForm::lineAbc($item); @endphp
-                    <article
-                        wire:key="item-{{ $index }}-{{ $item['id'] ?? 'new' }}"
-                        id="ppmp-item-{{ $index }}"
-                        class="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800
-                            {{ $focusedItemIndex === $index ? 'ring-2 ring-primary-500/30' : '' }}
-                            {{ count($items) > 1 ? ($focusedItemIndex === $index ? 'block' : 'hidden lg:block') : 'block' }}"
+            <div class="space-y-8">
+                @foreach($expenseClassOptions as $expenseClassValue => $expenseClassLabel)
+                    @php
+                        $sectionRows = $this->itemsForExpenseClass($expenseClassValue);
+                        $sectionAbc = $this->sectionAbc($expenseClassValue);
+                    @endphp
+                    <section
+                        wire:key="expense-section-{{ $expenseClassValue }}"
+                        x-data="{ sectionOpen: true }"
+                        class="rounded-xl border border-slate-200 dark:border-slate-800"
                     >
-                        {{-- Item header --}}
-                        <div class="flex items-start justify-between gap-3 border-b border-slate-100 bg-slate-50/80 px-4 py-3 dark:border-slate-800 dark:bg-slate-800/50">
-                            <div class="min-w-0 flex-1">
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <span class="inline-flex h-7 min-w-[1.75rem] items-center justify-center rounded-full bg-primary-100 px-2 text-xs font-bold text-primary-800 dark:bg-primary-900/40 dark:text-primary-200">
-                                        {{ $index + 1 }}
-                                    </span>
-                                    <p class="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
-                                        {{ $item['item_name'] ?: 'New procurement item' }}
-                                    </p>
-                                </div>
-                                @if($lineAbc > 0)
-                                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                        ABC: <span class="font-semibold text-slate-700 dark:text-slate-200">₱{{ number_format($lineAbc, 2) }}</span>
-                                    </p>
-                                @endif
-                            </div>
-                            <div class="flex shrink-0 items-center gap-2">
-                                @if(count($items) > 1)
-                                    <button
-                                        type="button"
-                                        wire:click="removeItem({{ $index }})"
-                                        wire:confirm="Remove this item from the PPMP?"
-                                        class="rounded-lg px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                    >
-                                        Remove
-                                    </button>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="space-y-5 p-4 sm:p-5">
-                            {{-- Section: Item details --}}
-                            <div>
-                                <p class="{{ $section }} mb-3">Item details</p>
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div class="sm:col-span-2">
-                                        <label class="{{ $label }}">Item name <span class="text-red-500">*</span></label>
-                                        <input wire:model.blur="items.{{ $index }}.item_name" type="text" class="{{ $field }}" placeholder="What are you procuring?">
-                                        @error("items.$index.item_name") <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                                    </div>
-                                    <div class="sm:col-span-2">
-                                        <label class="{{ $label }}">Description</label>
-                                        <textarea wire:model.blur="items.{{ $index }}.description" rows="2" class="{{ $field }}" placeholder="Brief purpose or scope"></textarea>
-                                    </div>
-                                    <div class="sm:col-span-2">
-                                        <label class="{{ $label }}">Specification / size</label>
-                                        <input wire:model.blur="items.{{ $index }}.specification" type="text" class="{{ $field }}" placeholder="Technical specs, dimensions, etc.">
-                                    </div>
-                                    <div>
-                                        <label class="{{ $label }}">Unit <span class="text-red-500">*</span></label>
-                                        <input wire:model.blur="items.{{ $index }}.unit" type="text" class="{{ $field }}" placeholder="e.g. unit, lot, set">
-                                        @error("items.$index.unit") <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                                    </div>
-                                    <div>
-                                        <label class="{{ $label }}">Quantity <span class="text-red-500">*</span></label>
-                                        <input wire:model.blur="items.{{ $index }}.quantity" type="number" step="0.01" inputmode="decimal" class="{{ $field }}" placeholder="0">
-                                        @error("items.$index.quantity") <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Section: Cost & schedule --}}
-                            <div class="border-t border-slate-100 pt-5 dark:border-slate-800">
-                                <p class="{{ $section }} mb-3">Cost & schedule</p>
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                    <div>
-                                        <label class="{{ $label }}">Est. unit cost <span class="text-red-500">*</span></label>
-                                        <div class="relative">
-                                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-slate-400">₱</span>
-                                            <input wire:model.blur="items.{{ $index }}.estimated_unit_cost" type="number" step="0.01" inputmode="decimal" class="{{ $field }} pl-8" placeholder="0.00">
-                                        </div>
-                                        @error("items.$index.estimated_unit_cost") <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                                    </div>
-                                    <div class="flex items-end sm:col-span-1 lg:col-span-2">
-                                        <div class="w-full rounded-lg bg-slate-50 px-4 py-3 dark:bg-slate-800/60">
-                                            <p class="text-xs font-medium uppercase tracking-wide text-slate-400">Line ABC</p>
-                                            <p class="text-lg font-bold text-slate-800 dark:text-slate-100">₱{{ number_format($lineAbc, 2) }}</p>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="{{ $label }}">Schedule start</label>
-                                        <input wire:model="items.{{ $index }}.schedule_start" type="date" class="{{ $field }}">
-                                        @error("items.$index.schedule_start") <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                                    </div>
-                                    <div>
-                                        <label class="{{ $label }}">Schedule end</label>
-                                        <input wire:model="items.{{ $index }}.schedule_end" type="date" class="{{ $field }}">
-                                        @error("items.$index.schedule_end") <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Section: Procurement & budget --}}
-                            <div class="border-t border-slate-100 pt-5 dark:border-slate-800">
-                                <p class="{{ $section }} mb-3">Procurement & budget</p>
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div>
-                                        <label class="{{ $label }}">Mode of procurement</label>
-                                        <select wire:model="items.{{ $index }}.mode_of_procurement_id" class="{{ $field }}">
-                                            <option value="">Select&hellip;</option>
-                                            @foreach($modes as $mode)
-                                                <option value="{{ $mode->id }}">{{ $mode->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="{{ $label }}" title="Pre-Procurement Conference — NGPA PPMP Column 5">
-                                            <span class="lg:hidden">Pre-proc conference</span>
-                                            <span class="hidden lg:inline">Pre-Procurement Conference (Col. 5)</span>
-                                        </label>
-                                        <select wire:model="items.{{ $index }}.pre_procurement_conference" class="{{ $field }}">
-                                            @foreach($preProcurementOptions as $value => $optionLabel)
-                                                <option value="{{ $value }}">{{ $optionLabel }}</option>
-                                            @endforeach
-                                        </select>
-                                        @error("items.$index.pre_procurement_conference") <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                                    </div>
-                                    <div class="sm:col-span-2">
-                                        <label class="{{ $label }}">Fund source / PAP / UACS <span class="text-red-500">*</span></label>
-                                        <select wire:model="items.{{ $index }}.budget_allocation_id" class="{{ $field }}">
-                                            <option value="">Select budget allocation&hellip;</option>
-                                            @foreach($allocations as $alloc)
-                                                <option value="{{ $alloc->id }}">
-                                                    {{ $alloc->fundSource?->name }} &middot; {{ $alloc->pap?->code }} &middot; ₱{{ number_format($alloc->remaining_balance, 2) }} left
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @if($allocations->isEmpty() && ($fiscal_year_id && $division_id))
-                                            <p class="mt-1.5 text-xs text-amber-600 dark:text-amber-400">No budget allocations found for this division and fiscal year.</p>
-                                        @elseif(!$division_id || !$fiscal_year_id)
-                                            <p class="mt-1.5 text-xs text-slate-500">Select fiscal year and division first to load allocations.</p>
-                                        @endif
-                                        @error("items.$index.budget_allocation_id") <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                                    </div>
-                                    <div class="sm:col-span-2">
-                                        <label class="{{ $label }}">Remarks</label>
-                                        <textarea wire:model.blur="items.{{ $index }}.remarks" rows="2" class="{{ $field }}" placeholder="Optional notes for this line item"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Mobile: next item navigation --}}
-                        @if(count($items) > 1 && $index < count($items) - 1)
-                            <div class="border-t border-slate-100 px-4 py-3 lg:hidden dark:border-slate-800">
-                                <button
-                                    type="button"
-                                    wire:click="focusItem({{ $index + 1 }})"
-                                    class="w-full rounded-lg bg-slate-100 py-2.5 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                        <div class="flex flex-col gap-3 border-b border-slate-100 bg-slate-50/80 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800 dark:bg-slate-800/50">
+                            <button type="button" @click="sectionOpen = !sectionOpen" class="flex min-w-0 flex-1 items-start gap-2 text-left" :aria-expanded="sectionOpen">
+                                <svg
+                                    class="mt-0.5 h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200"
+                                    :class="{ 'rotate-90': sectionOpen }"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    aria-hidden="true"
                                 >
-                                    Continue to item #{{ $index + 2 }} &darr;
-                                </button>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                </svg>
+                                <div>
+                                    <h4 class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ $expenseClassLabel }}</h4>
+                                    <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                                        {{ count($sectionRows) }} {{ Str::plural('row', count($sectionRows)) }}
+                                        @if($sectionAbc > 0)
+                                            &middot; Subtotal ₱{{ number_format($sectionAbc, 2) }}
+                                        @endif
+                                    </p>
+                                </div>
+                            </button>
+                            <x-button type="button" wire:click="addItem('{{ $expenseClassValue }}')" variant="secondary" size="sm" class="w-full sm:w-auto" @click.stop>
+                                + Add {{ $expenseClassLabel }} row
+                            </x-button>
+                        </div>
+
+                        <div x-show="sectionOpen" x-transition>
+                        @if($sectionRows === [])
+                            <p class="px-4 py-6 text-center text-sm text-slate-500 dark:text-slate-400">
+                                No {{ $expenseClassLabel }} items yet. Click &ldquo;Add {{ $expenseClassLabel }} row&rdquo; to add one.
+                            </p>
+                        @else
+                            <div class="space-y-4 p-4 lg:space-y-5">
+                                @foreach($sectionRows as $sectionIndex => $row)
+                                    @php
+                                        $index = $row['index'];
+                                        $item = $row['item'];
+                                        $lineAbc = \App\Livewire\Planning\PpmpForm::lineAbc($item);
+                                    @endphp
+                                    @include('livewire.planning.partials.ppmp-item-fields', [
+                                        'index' => $index,
+                                        'sectionIndex' => $sectionIndex,
+                                        'item' => $item,
+                                        'lineAbc' => $lineAbc,
+                                        'sectionLabel' => $expenseClassLabel,
+                                        'canRemove' => count($items) > 1,
+                                        'showMobileNav' => count($items) > 1,
+                                        'isLastInAll' => $index === count($items) - 1,
+                                        'remainingFund' => $this->remainingFund,
+                                        'projectProposalTotalCost' => $this->projectProposalTotalCost,
+                                        'defaultOpen' => $sectionIndex === 0,
+                                        'expenseClassOptions' => $expenseClassOptions,
+                                        'projectTypeOptions' => $projectTypeOptions,
+                                    ])
+                                @endforeach
                             </div>
                         @endif
-                    </article>
+                        </div>
+                    </section>
                 @endforeach
             </div>
         </x-card>

@@ -42,6 +42,51 @@ class AgencyBrandTest extends TestCase
             ->assertSee($agency->displayName(), false);
     }
 
+    public function test_login_page_displays_default_background_image(): void
+    {
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee('/images/defaults/brhmc-login-background.jpg', false);
+    }
+
+    public function test_super_admin_can_upload_login_background_image(): void
+    {
+        $user = User::query()->where('email', 'superadmin@pms.gov.ph')->firstOrFail();
+        $profileId = AgencyProfile::query()->value('id');
+        $background = UploadedFile::fake()->image('brhmc-campus.jpg', 1600, 900);
+
+        Livewire::actingAs($user)
+            ->test(\App\Livewire\Settings\AgencyProfileTab::class)
+            ->set('loginBackground', $background)
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('settings.index', ['tab' => 'profile']));
+
+        $profile = AgencyProfile::query()->findOrFail($profileId);
+        AgencyProfile::resetCached();
+
+        $this->assertNotNull($profile->login_background_path);
+        Storage::disk('public')->assertExists($profile->login_background_path);
+        $this->assertSame('/storage/'.$profile->login_background_path, $profile->loginBackgroundUrl());
+    }
+
+    public function test_system_admin_cannot_replace_login_background_image(): void
+    {
+        $user = User::query()->where('email', 'sysadmin@pms.gov.ph')->firstOrFail();
+        $profileId = AgencyProfile::query()->value('id');
+        $background = UploadedFile::fake()->image('blocked-background.jpg', 1600, 900);
+
+        Livewire::actingAs($user)
+            ->test(\App\Livewire\Settings\AgencyProfileTab::class)
+            ->set('loginBackground', $background)
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $profile = AgencyProfile::query()->findOrFail($profileId);
+
+        $this->assertNull($profile->login_background_path);
+    }
+
     public function test_agency_logo_upload_is_saved_and_served_from_public_storage(): void
     {
         $user = User::query()->where('email', 'superadmin@pms.gov.ph')->firstOrFail();

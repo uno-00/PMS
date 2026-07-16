@@ -60,13 +60,20 @@
         <div>
             <p class="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">Live preview</p>
             <div class="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700">
-                <div class="theme-gradient-panel p-8 text-white">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-lg font-bold">PMS</div>
-                        <span class="text-lg font-semibold">Procurement Management System</span>
+                @php $loginBackgroundUrl = \App\Models\Settings\AgencyProfile::current()->loginBackgroundUrl(); @endphp
+                <div class="theme-gradient-panel relative p-8 text-white">
+                    @if ($loginBackgroundUrl)
+                        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('{{ $loginBackgroundUrl }}')" aria-hidden="true"></div>
+                        <div class="absolute inset-0 bg-gradient-to-br from-primary-950/85 via-primary-900/75 to-primary-800/80" aria-hidden="true"></div>
+                    @endif
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-lg font-bold">PMS</div>
+                            <span class="text-lg font-semibold">Procurement Management System</span>
+                        </div>
+                        <p class="mt-6 text-2xl font-bold leading-tight">Enterprise Procurement,<br>from GAA to Payment.</p>
+                        <p class="mt-3 max-w-sm text-sm text-white/80">Preview of the login-page background and brand panel.</p>
                     </div>
-                    <p class="mt-6 text-2xl font-bold leading-tight">Enterprise Procurement,<br>from GAA to Payment.</p>
-                    <p class="mt-3 max-w-sm text-sm text-white/80">Preview of the login-page gradient and brand panel.</p>
                 </div>
                 <div class="space-y-3 bg-white p-4 dark:bg-slate-900">
                     <button type="button" class="w-full rounded-lg bg-primary-700 px-4 py-2.5 text-sm font-semibold text-white">Primary button</button>

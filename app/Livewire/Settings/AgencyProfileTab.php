@@ -3,6 +3,7 @@
 namespace App\Livewire\Settings;
 
 use App\Models\Settings\AgencyProfile;
+use App\Support\Roles;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -42,6 +43,10 @@ class AgencyProfileTab extends Component
 
     public $logo = null;
 
+    public $loginBackground = null;
+
+    public bool $removeLoginBackground = false;
+
     public function mount(): void
     {
         Gate::authorize('settings.manage');
@@ -75,6 +80,7 @@ class AgencyProfileTab extends Component
             'contact_phone' => 'nullable|string|max:50',
             'philgeps_organization_id' => 'nullable|string|max:100',
             'logo' => 'nullable|image|max:2048',
+            'loginBackground' => 'nullable|image|max:5120',
         ]);
 
         $profile = $this->profile();
@@ -92,9 +98,22 @@ class AgencyProfileTab extends Component
             $data['logo_path'] = $this->logo->store('agency', 'public');
         }
 
+        if ($this->canManageLoginBackground()) {
+            if ($this->removeLoginBackground && $profile->login_background_path) {
+                Storage::disk('public')->delete($profile->login_background_path);
+                $data['login_background_path'] = null;
+            } elseif ($this->loginBackground) {
+                if ($profile->login_background_path) {
+                    Storage::disk('public')->delete($profile->login_background_path);
+                }
+
+                $data['login_background_path'] = $this->loginBackground->store('agency/login-backgrounds', 'public');
+            }
+        }
+
         $profile->update($data);
         AgencyProfile::resetCached();
-        $this->reset('logo');
+        $this->reset('logo', 'loginBackground', 'removeLoginBackground');
 
         session()->flash('status', 'Agency profile updated.');
 
@@ -106,6 +125,11 @@ class AgencyProfileTab extends Component
     protected function profile(): AgencyProfile
     {
         return AgencyProfile::query()->findOrFail($this->profileId);
+    }
+
+    protected function canManageLoginBackground(): bool
+    {
+        return auth()->user()?->hasRole(Roles::SUPER_ADMIN) ?? false;
     }
 
     public function render()
@@ -121,9 +145,21 @@ class AgencyProfileTab extends Component
             }
         }
 
+        $loginBackgroundUrl = $profile->loginBackgroundUrl();
+
+        if ($this->loginBackground) {
+            try {
+                $loginBackgroundUrl = $this->loginBackground->temporaryUrl();
+            } catch (\Throwable) {
+                // Fall back to the saved background if the temp preview is unavailable.
+            }
+        }
+
         return view('livewire.settings.agency-profile-tab', [
             'profile' => $profile,
             'logoUrl' => $logoUrl,
+            'loginBackgroundUrl' => $loginBackgroundUrl,
+            'canManageLoginBackground' => $this->canManageLoginBackground(),
         ]);
     }
 }

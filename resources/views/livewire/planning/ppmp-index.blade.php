@@ -76,7 +76,7 @@
                             </td>
                             <td class="py-3 pr-4">{{ $ppmp->division?->name }}</td>
                             <td class="py-3 pr-4">{{ $ppmp->fiscalYear?->year }}</td>
-                            <td class="py-3 pr-4 text-right">₱{{ number_format($ppmp->total_abc, 2) }}</td>
+                            <td class="py-3 pr-4 text-right">₱{{ number_format($ppmp->totalLineAbc(), 2) }}</td>
                             <td class="py-3 pr-4"><x-status-badge :status="$ppmp->status" /></td>
                             <td class="py-3 pr-4 text-xs text-slate-500">{{ $ppmp->created_at?->format('M d, Y') }}</td>
                             <td class="py-3 pr-4 text-right"><x-button href="{{ route('ppmps.show', $ppmp) }}" variant="secondary" size="sm">View</x-button></td>

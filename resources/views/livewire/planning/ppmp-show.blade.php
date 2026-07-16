@@ -110,7 +110,7 @@
     @endif
 
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <x-stat-card label="Total ABC" :value="'₱'.number_format($ppmp->total_abc, 2)" icon="banknotes" />
+        <x-stat-card label="Total ABC" :value="'₱'.number_format($totalLineAbc, 2)" icon="banknotes" />
         <x-stat-card label="Items" :value="$items->count()" icon="document-text" accent="indigo" />
         <x-stat-card label="Fiscal Year" :value="$ppmp->fiscalYear?->year" icon="calendar" accent="amber" />
         <x-stat-card label="Document Type" :value="$ppmp->document_type?->label() ?? 'Indicative'" icon="document-text" accent="sky" />
@@ -124,7 +124,7 @@
                         <div class="flex flex-col gap-2 rounded-lg bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between dark:bg-slate-900/50">
                             <div>
                                 <p class="font-medium text-slate-700 dark:text-slate-200">{{ $item->item_name }}</p>
-                                <p class="text-xs text-slate-500">ABC: ₱{{ number_format($item->abc, 2) }}</p>
+                                <p class="text-xs text-slate-500">ABC: ₱{{ number_format($item->lineAbc(), 2) }}</p>
                             </div>
                             <select wire:model="itemModes.{{ $index }}.mode_of_procurement_id" class="rounded-lg border-slate-300 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
                                 <option value="">Select mode</option>
@@ -147,7 +147,7 @@
                         <div class="flex flex-col gap-2 rounded-lg bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between dark:bg-slate-900/50">
                             <div>
                                 <p class="font-medium text-slate-700 dark:text-slate-200">{{ $item->item_name }}</p>
-                                <p class="text-xs text-slate-500">Mode: {{ $item->modeOfProcurement?->name ?? '—' }} · ABC: ₱{{ number_format($item->abc, 2) }}</p>
+                                <p class="text-xs text-slate-500">Mode: {{ $item->modeOfProcurement?->name ?? '—' }} · ABC: ₱{{ number_format($item->lineAbc(), 2) }}</p>
                             </div>
                             <select wire:model="itemBudgets.{{ $index }}.budget_allocation_id" class="rounded-lg border-slate-300 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
                                 <option value="">Select budget allocation</option>
@@ -193,7 +193,7 @@
                                 <td class="py-2.5 pr-4">{{ rtrim(rtrim($item->quantity, '0'), '.') }} {{ $item->unit }}</td>
                                 <td class="py-2.5 pr-4 text-slate-500">{{ $item->modeOfProcurement?->name ?? '—' }}</td>
                                 <td class="py-2.5 pr-4 text-slate-500">{{ $item->fundSource?->name ?? '—' }}</td>
-                                <td class="py-2.5 pr-4 text-right font-medium">₱{{ number_format($item->abc, 2) }}</td>
+                                <td class="py-2.5 pr-4 text-right font-medium">₱{{ number_format($item->lineAbc(), 2) }}</td>
                             </tr>
                         @endforeach
                     </tbody>

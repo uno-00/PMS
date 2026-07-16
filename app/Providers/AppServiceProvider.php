@@ -10,6 +10,7 @@ use App\Models\Budget\GeneralAppropriationsAct;
 use App\Models\Planning\AnnualProcurementPlan;
 use App\Models\Planning\MarketScoping;
 use App\Models\Planning\Ppmp;
+use App\Models\Planning\PpmpConsolidation;
 use App\Models\Planning\ProjectProposal;
 use App\Models\Procurement\CertificateOfAvailabilityOfFunds;
 use App\Models\Procurement\Payment;
@@ -26,6 +27,7 @@ use App\Policies\GaaPolicy;
 use App\Policies\MarketScopingPolicy;
 use App\Policies\PaymentPolicy;
 use App\Policies\PhilgepsPostingPolicy;
+use App\Policies\PpmpConsolidationPolicy;
 use App\Policies\PpmpPolicy;
 use App\Policies\ProjectProposalPolicy;
 use App\Policies\ProcurementPolicy;
@@ -50,6 +52,7 @@ class AppServiceProvider extends ServiceProvider
         GeneralAppropriationsAct::class => GaaPolicy::class,
         AnnualProcurementPlan::class => AnnualProcurementPlanPolicy::class,
         Ppmp::class => PpmpPolicy::class,
+        PpmpConsolidation::class => PpmpConsolidationPolicy::class,
         MarketScoping::class => MarketScopingPolicy::class,
         ProjectProposal::class => ProjectProposalPolicy::class,
         PurchaseRequest::class => PurchaseRequestPolicy::class,

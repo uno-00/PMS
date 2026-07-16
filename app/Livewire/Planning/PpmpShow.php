@@ -170,8 +170,9 @@ class PpmpShow extends Component
             ->when($this->ppmp->fiscal_year_id, fn ($q) => $q->where('fiscal_year_id', $this->ppmp->fiscal_year_id))
             ->with(['pap', 'fundSource'])
             ->get();
+        $totalLineAbc = round($items->sum(fn ($item) => $item->lineAbc()), 2);
 
-        return view('livewire.planning.ppmp-show', compact('items', 'history', 'modes', 'allocations'))
+        return view('livewire.planning.ppmp-show', compact('items', 'history', 'modes', 'allocations', 'totalLineAbc'))
             ->layout('components.layouts.app', ['title' => $this->ppmp->title]);
     }
 }

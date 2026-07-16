@@ -1,4 +1,4 @@
-@props(['href' => null, 'variant' => 'primary', 'type' => 'button', 'size' => 'md'])
+@props(['href' => null, 'variant' => 'primary', 'type' => 'button', 'size' => 'md', 'disabled' => false])
 @php
     $variants = [
         'primary' => 'bg-primary-700 text-white hover:bg-primary-800 focus:ring-primary-500',
@@ -15,7 +15,7 @@
         .($variants[$variant] ?? $variants['primary']).' '.($sizes[$size] ?? $sizes['md']);
 @endphp
 @if($href)
-    <a href="{{ $href }}" {{ $attributes->merge(['class' => $classes]) }}>{{ $slot }}</a>
+    <a href="{{ $href }}" {{ $attributes->merge(['class' => $classes]) }} @disabled($disabled)>{{ $slot }}</a>
 @else
-    <button type="{{ $type }}" {{ $attributes->merge(['class' => $classes]) }}>{{ $slot }}</button>
+    <button type="{{ $type }}" {{ $attributes->merge(['class' => $classes]) }} @disabled($disabled)>{{ $slot }}</button>
 @endif

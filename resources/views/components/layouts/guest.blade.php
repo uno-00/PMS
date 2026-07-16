@@ -11,7 +11,7 @@
 </head>
 <body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
     <div class="flex min-h-screen">
-        <div class="theme-gradient-panel hidden w-1/2 flex-col justify-between p-12 text-white lg:flex">
+        <x-login-brand-panel>
             <div class="flex items-center gap-3">
                 <x-agency-brand variant="inverse" />
             </div>
@@ -23,7 +23,7 @@
                 </p>
             </div>
             <p class="text-sm text-primary-200">&copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.</p>
-        </div>
+        </x-login-brand-panel>
         <div class="flex w-full flex-1 items-center justify-center p-6 lg:w-1/2">
             <div class="w-full max-w-md">
                 {{ $slot }}

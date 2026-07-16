@@ -105,9 +105,29 @@ class Ppmp extends Model
         return $this->belongsTo(User::class, 'prepared_by');
     }
 
+    public function totalLineAbc(): float
+    {
+        if ($this->relationLoaded('items')) {
+            return round((float) $this->items->sum(fn (PpmpItem $item) => $item->lineAbc()), 2);
+        }
+
+        if (isset($this->attributes['line_abc_total'])) {
+            return round((float) $this->attributes['line_abc_total'], 2);
+        }
+
+        return round((float) $this->items()->selectRaw('COALESCE(SUM(ROUND(quantity * estimated_unit_cost, 2)), 0) as aggregate')->value('aggregate'), 2);
+    }
+
+    public static function lineAbcTotalSubquery(): \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder
+    {
+        return PpmpItem::query()
+            ->selectRaw('COALESCE(SUM(ROUND(quantity * estimated_unit_cost, 2)), 0)')
+            ->whereColumn('ppmp_items.ppmp_id', 'ppmps.id');
+    }
+
     public function recalculateTotal(): void
     {
-        $this->update(['total_abc' => $this->items()->sum('abc')]);
+        $this->update(['total_abc' => $this->totalLineAbc()]);
     }
 
     public function isEditable(): bool

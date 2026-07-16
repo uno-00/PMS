@@ -3,6 +3,7 @@
 namespace App\Services\Planning;
 
 use App\Enums\PpmpDocumentType;
+use App\Enums\PpmpProjectType;
 use App\Enums\PpmpStatus;
 use App\Exceptions\BudgetExceededException;
 use App\Models\Budget\BudgetAllocation;
@@ -51,6 +52,8 @@ class PpmpService
 
             $ppmp->items()->create([
                 'item_no' => 1,
+                'project_type' => PpmpProjectType::tryFromProposalText($proposal->project_type)?->value
+                    ?? PpmpProjectType::Goods->value,
                 'item_name' => $proposal->title,
                 'description' => RichTextSanitizer::plainText($proposal->rationale),
                 'specification' => RichTextSanitizer::plainText($proposal->objectives),
@@ -289,7 +292,7 @@ class PpmpService
         if ($type === 'amended') {
             foreach ($original->items as $item) {
                 $revision->items()->create(Arr::only($item->toArray(), [
-                    'item_no', 'item_name', 'description', 'specification', 'unit', 'quantity',
+                    'item_no', 'expense_class', 'project_type', 'item_name', 'description', 'specification', 'unit', 'quantity',
                     'estimated_unit_cost', 'abc', 'schedule_start', 'schedule_end', 'mode_of_procurement_id',
                     'fund_source_id', 'pap_id', 'uacs_code_id', 'budget_allocation_id', 'remarks',
                 ]));

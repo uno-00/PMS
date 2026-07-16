@@ -2,6 +2,8 @@
 
 namespace App\Models\Planning;
 
+use App\Enums\PpmpExpenseClass;
+use App\Enums\PpmpProjectType;
 use App\Enums\PreProcurementConference;
 
 use App\Models\Budget\BudgetAllocation;
@@ -19,7 +21,7 @@ class PpmpItem extends Model
     use HasUuid;
 
     protected $fillable = [
-        'ppmp_id', 'item_no', 'item_name', 'description', 'specification', 'unit', 'quantity',
+        'ppmp_id', 'item_no', 'expense_class', 'project_type', 'item_name', 'description', 'specification', 'unit', 'quantity',
         'estimated_unit_cost', 'abc', 'schedule_start', 'schedule_end', 'mode_of_procurement_id',
         'pre_procurement_conference', 'fund_source_id', 'pap_id', 'uacs_code_id', 'budget_allocation_id', 'utilized_amount', 'remarks',
     ];
@@ -32,11 +34,25 @@ class PpmpItem extends Model
         'schedule_start' => 'date',
         'schedule_end' => 'date',
         'pre_procurement_conference' => PreProcurementConference::class,
+        'expense_class' => PpmpExpenseClass::class,
+        'project_type' => PpmpProjectType::class,
     ];
 
     protected static function booted(): void
     {
         static::saving(function (self $item) {
+            foreach ([
+                'mode_of_procurement_id',
+                'fund_source_id',
+                'pap_id',
+                'uacs_code_id',
+                'budget_allocation_id',
+            ] as $foreignKey) {
+                if ($item->{$foreignKey} === '') {
+                    $item->{$foreignKey} = null;
+                }
+            }
+
             if ($item->quantity && $item->estimated_unit_cost) {
                 $item->abc = round((float) $item->quantity * (float) $item->estimated_unit_cost, 2);
             }
@@ -79,6 +95,11 @@ class PpmpItem extends Model
     public function remainingBalance(): float
     {
         return round((float) $this->abc - (float) $this->utilized_amount, 2);
+    }
+
+    public function lineAbc(): float
+    {
+        return round((float) $this->quantity * (float) $this->estimated_unit_cost, 2);
     }
 
     public function plainDescription(): string

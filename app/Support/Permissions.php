@@ -27,6 +27,7 @@ final class Permissions
             'market-scoping' => ['view', 'create', 'edit', 'approve', 'delete'],
             'project-proposal' => ['view', 'create', 'edit', 'submit', 'recommend', 'approve', 'delete'],
             'ppmp' => ['view', 'create', 'edit', 'submit', 'review-division', 'review-planning', 'validate-budget', 'consolidate-bac', 'recommend-procurement-mode', 'approve', 'lock', 'delete'],
+            'ppmp-consolidation' => ['view', 'create', 'edit', 'submit', 'review-planning', 'review-budget', 'review-accounting', 'review-bac', 'approve-hope', 'lock', 'export', 'cancel', 'delete'],
             'purchase-request' => ['view', 'create', 'edit', 'submit', 'review-division', 'review-planning', 'review-budget', 'approve-hope', 'delete'],
             'caf' => ['view', 'generate', 'certify', 'approve', 'print'],
             'bac-calendar' => ['view', 'create', 'edit', 'delete', 'manage'],

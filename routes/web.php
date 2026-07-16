@@ -7,7 +7,11 @@ use App\Http\Controllers\Pdf\GaaPdfController;
 use App\Http\Controllers\Pdf\NoticeOfAwardPdfController;
 use App\Http\Controllers\Pdf\NoticeToProceedPdfController;
 use App\Http\Controllers\Pdf\MarketScopingPdfController;
+use App\Http\Controllers\Pdf\PpmpConsolidationBp2020PdfController;
+use App\Http\Controllers\Pdf\PpmpConsolidationPdfController;
+use App\Http\Controllers\Pdf\PpmpConsolidationWfpPdfController;
 use App\Http\Controllers\Pdf\PpmpPdfController;
+use App\Http\Controllers\PpmpConsolidationExportController;
 use App\Http\Controllers\Pdf\ProjectProposalPdfController;
 use App\Http\Controllers\Pdf\PurchaseOrderPdfController;
 use App\Http\Controllers\Pdf\PurchaseRequestPdfController;
@@ -41,6 +45,8 @@ use App\Livewire\Planning\AppShow;
 use App\Livewire\Planning\MarketScopingForm;
 use App\Livewire\Planning\MarketScopingIndex;
 use App\Livewire\Planning\MarketScopingShow;
+use App\Livewire\Planning\PpmpConsolidationIndex;
+use App\Livewire\Planning\PpmpConsolidationWizard;
 use App\Livewire\Planning\PpmpForm;
 use App\Livewire\Planning\PpmpIndex;
 use App\Livewire\Planning\PpmpShow;
@@ -136,11 +142,24 @@ Route::middleware(['auth'])->group(function () {
 
         // Phase 4: PPMP
         Route::prefix('ppmps')->name('ppmps.')->group(function () {
+            Route::get('/indicative', PpmpIndex::class)->defaults('documentType', 'indicative')->name('indicative');
+            Route::get('/final', PpmpIndex::class)->defaults('documentType', 'final')->name('final');
             Route::get('/', PpmpIndex::class)->name('index');
             Route::get('/create', PpmpForm::class)->name('create');
             Route::get('/{ppmp}/edit', PpmpForm::class)->name('edit');
             Route::get('/{ppmp}', PpmpShow::class)->name('show');
             Route::get('/{ppmp}/print', PpmpPdfController::class)->name('print');
+        });
+
+        // PPMP Consolidation (agency-wide Indicative/Final rollup)
+        Route::prefix('ppmp-consolidations')->name('ppmp-consolidations.')->group(function () {
+            Route::get('/', PpmpConsolidationIndex::class)->name('index');
+            Route::get('/create', PpmpConsolidationWizard::class)->name('create');
+            Route::get('/{consolidation}/wizard', PpmpConsolidationWizard::class)->name('wizard');
+            Route::get('/{consolidation}/print', PpmpConsolidationPdfController::class)->name('print');
+            Route::get('/{consolidation}/bp2020/print', PpmpConsolidationBp2020PdfController::class)->name('bp2020.print');
+            Route::get('/{consolidation}/wfp/print', PpmpConsolidationWfpPdfController::class)->name('wfp.print');
+            Route::get('/{consolidation}/export/{format?}', PpmpConsolidationExportController::class)->name('export');
         });
 
         // Phase 5: Purchase Request

@@ -23,10 +23,22 @@
     </x-nav-group>
     @endif
 
+    @if($this->navCanAny(['ppmp.view', 'ppmp-consolidation.view']))
+    <x-nav-group title="Planning">
+        @if($this->navCan('ppmp.view'))
+            <x-nav-link :href="route('ppmps.indicative')" :active="request()->routeIs('ppmps.indicative')" icon="document-text">Indicative PPMP</x-nav-link>
+            <x-nav-link :href="route('ppmps.final')" :active="request()->routeIs('ppmps.final')" icon="document-text">Final PPMP</x-nav-link>
+        @endif
+        @if($this->navCan('ppmp-consolidation.view'))
+            <x-nav-link :href="route('ppmp-consolidations.index')" :active="request()->routeIs('ppmp-consolidations.*')" icon="clipboard">PPMP Consolidation</x-nav-link>
+        @endif
+    </x-nav-group>
+    @endif
+
     @if($this->navCanAny(['ppmp.view', 'purchase-request.view', 'caf.view']))
     <x-nav-group title="Procurement">
         @if($this->navCan('ppmp.view'))
-            <x-nav-link :href="route('ppmps.index')" :active="request()->routeIs('ppmps.*')" icon="document-text">PPMP</x-nav-link>
+            <x-nav-link :href="route('ppmps.index')" :active="request()->routeIs('ppmps.index') || request()->routeIs('ppmps.show') || request()->routeIs('ppmps.create') || request()->routeIs('ppmps.edit')" icon="document-text">All PPMP</x-nav-link>
         @endif
         @if($this->navCan('purchase-request.view'))
             <x-nav-link :href="route('purchase-requests.index')" :active="request()->routeIs('purchase-requests.*')" icon="shopping-cart">Purchase Requests</x-nav-link>

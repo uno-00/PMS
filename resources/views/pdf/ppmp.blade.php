@@ -31,7 +31,6 @@
         .col-budget { width: 8%; text-align: right; }
         .col-docs { width: 9%; }
         .col-remarks { width: 9%; }
-        .total-row td { font-weight: bold; background: #f1f5f9; }
         .signatures { margin-top: 14px; width: 100%; }
         .signatures td { width: 50%; vertical-align: top; padding: 0 8px; font-size: 7px; }
         .sig-heading { font-weight: bold; margin-bottom: 24px; }
@@ -127,9 +126,9 @@
             @endforelse
         </tbody>
         <tfoot>
-            <tr class="total-row">
-                <td colspan="10" class="text-right">TOTAL BUDGET:</td>
-                <td class="text-right">₱{{ number_format((float) $ppmp->total_abc, 2) }}</td>
+            <tr>
+                <td colspan="10" class="text-right" style="font-weight: bold;">TOTAL BUDGET:</td>
+                <td class="text-right" style="font-weight: bold;">{{ $formatter::totalBudget($ppmp) }}</td>
                 <td colspan="2"></td>
             </tr>
         </tfoot>

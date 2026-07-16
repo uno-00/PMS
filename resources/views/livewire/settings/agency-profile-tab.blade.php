@@ -20,6 +20,41 @@
             </div>
         </div>
 
+        <div class="sm:col-span-2 border-t border-slate-200 pt-4 dark:border-slate-700">
+            <h4 class="text-sm font-semibold text-slate-800 dark:text-slate-100">General Settings — Login Page Display</h4>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                Background image shown on the left panel of the internal and bidder login pages.
+            </p>
+
+            @if ($loginBackgroundUrl)
+                <div
+                    wire:key="login-background-{{ $profile->updated_at?->timestamp ?? 'new' }}"
+                    class="mt-3 h-36 w-full max-w-md overflow-hidden rounded-lg border border-slate-200 bg-cover bg-center dark:border-slate-700"
+                    style="background-image: url('{{ $loginBackgroundUrl }}')"
+                    role="img"
+                    aria-label="Login page background preview"
+                ></div>
+            @endif
+
+            @if ($canManageLoginBackground)
+                <div class="mt-3 max-w-md">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Login Background Image</label>
+                    <input wire:model="loginBackground" type="file" accept="image/png,image/jpeg,image/jpg,image/webp" class="mt-1 block w-full text-xs text-slate-500 file:mr-2 file:rounded-md file:border-0 file:bg-slate-100 file:px-2 file:py-1 file:text-xs dark:file:bg-slate-800 dark:text-slate-400">
+                    <p class="mt-1 text-xs text-slate-400">PNG, JPG, or WebP. Max 5 MB. Super Admin only.</p>
+                    @error('loginBackground') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+
+                    @if ($profile->hasCustomLoginBackground())
+                        <label class="mt-2 flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                            <input wire:model="removeLoginBackground" type="checkbox" class="rounded border-slate-300 text-primary-600 dark:border-slate-600">
+                            Remove custom image and restore the default BRHMC background
+                        </label>
+                    @endif
+                </div>
+            @else
+                <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Only the Super Admin can change the login background image.</p>
+            @endif
+        </div>
+
         <div class="sm:col-span-2">
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Agency Name</label>
             <input wire:model="name" type="text" class="mt-1 block w-full rounded-lg border-slate-300 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
@@ -76,7 +111,7 @@
         </div>
 
         <div class="sm:col-span-2">
-            <x-button type="submit" wire:loading.attr="disabled" wire:target="save,logo">Save Agency Profile</x-button>
+            <x-button type="submit" wire:loading.attr="disabled" wire:target="save,logo,loginBackground">Save Agency Profile</x-button>
         </div>
     </form>
 </div>

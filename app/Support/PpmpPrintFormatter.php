@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Enums\PpmpDocumentType;
+use App\Enums\PpmpProjectType;
 use App\Enums\PreProcurementConference;
 use App\Models\Planning\Ppmp;
 use App\Models\Planning\PpmpItem;
@@ -42,7 +43,9 @@ final class PpmpPrintFormatter
 
     public static function projectType(PpmpItem $item): string
     {
-        $category = self::resolveCategory($item);
+        $category = $item->project_type instanceof PpmpProjectType
+            ? $item->project_type->value
+            : self::resolveCategory($item);
 
         $marks = fn (string $key) => $category === $key ? '☑' : '☐';
 
@@ -117,7 +120,19 @@ final class PpmpPrintFormatter
 
     public static function budgetAmount(PpmpItem $item): string
     {
-        return '₱'.number_format((float) $item->abc, 2);
+        return '₱'.number_format(self::lineAbc($item), 2);
+    }
+
+    public static function lineAbc(PpmpItem $item): float
+    {
+        return $item->lineAbc();
+    }
+
+    public static function totalBudget(Ppmp $ppmp): string
+    {
+        $total = $ppmp->items->sum(fn (PpmpItem $item) => self::lineAbc($item));
+
+        return '₱'.number_format(round((float) $total, 2), 2);
     }
 
     public static function supportingDocuments(PpmpItem $item): string
