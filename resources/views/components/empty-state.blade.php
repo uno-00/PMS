@@ -1,13 +1,13 @@
 @props(['icon' => 'clipboard', 'title' => 'Nothing here yet', 'description' => null])
-<div class="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center dark:border-slate-700 dark:bg-slate-900">
-    <span class="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400 dark:bg-slate-800">
-        <x-icon :name="$icon" class="h-6 w-6" />
+<div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300/80 bg-slate-50/50 px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900/50">
+    <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm ring-1 ring-slate-200/80 dark:bg-slate-800 dark:ring-slate-700">
+        <x-icon :name="$icon" class="h-7 w-7" />
     </span>
-    <p class="mt-4 text-sm font-semibold text-slate-700 dark:text-slate-200">{{ $title }}</p>
+    <p class="mt-5 text-base font-semibold text-slate-800 dark:text-slate-100">{{ $title }}</p>
     @if($description)
-        <p class="mt-1 max-w-sm text-sm text-slate-400">{{ $description }}</p>
+        <p class="mt-2 max-w-sm text-sm leading-relaxed text-slate-500 dark:text-slate-400">{{ $description }}</p>
     @endif
     @isset($actions)
-        <div class="mt-4">{{ $actions }}</div>
+        <div class="mt-5">{{ $actions }}</div>
     @endisset
 </div>

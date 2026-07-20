@@ -1,5 +1,6 @@
 import './bootstrap';
 import './rich-text-editor';
+import './charts';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);

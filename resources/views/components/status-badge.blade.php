@@ -14,6 +14,6 @@
     $color = method_exists($status, 'color') ? $status->color() : 'slate';
     $label = method_exists($status, 'label') ? $status->label() : (string) $status;
 @endphp
-<span {{ $attributes->merge(['class' => 'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium '.($colorMap[$color] ?? $colorMap['slate'])]) }}>
+<span {{ $attributes->merge(['class' => 'inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ring-inset '.($colorMap[$color] ?? $colorMap['slate'])]) }}>
     {{ $label }}
 </span>

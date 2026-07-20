@@ -34,6 +34,16 @@
     --color-flag-yellow: #fcd116;
 }
 
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    ::selection {
+        background-color: color-mix(in srgb, var(--theme-primary, #1d4ed8) 25%, transparent);
+    }
+}
+
 @layer utilities {
     .scrollbar-thin::-webkit-scrollbar {
         width: 6px;
@@ -45,6 +55,101 @@
     }
     .dark .scrollbar-thin::-webkit-scrollbar-thumb {
         background-color: theme('colors.slate.600');
+    }
+
+    .app-shell-bg {
+        background-color: theme('colors.slate.50');
+        background-image:
+            radial-gradient(at 100% 0%, color-mix(in srgb, var(--theme-gradient-from, #1d4ed8) 10%, transparent) 0, transparent 55%),
+            radial-gradient(at 0% 100%, color-mix(in srgb, var(--theme-gradient-via, #1e40af) 8%, transparent) 0, transparent 50%);
+    }
+
+    .dark .app-shell-bg {
+        background-color: theme('colors.slate.950');
+        background-image:
+            radial-gradient(at 100% 0%, color-mix(in srgb, var(--theme-gradient-from, #1d4ed8) 14%, transparent) 0, transparent 55%),
+            radial-gradient(at 0% 100%, color-mix(in srgb, var(--theme-gradient-to, #0f172a) 35%, transparent) 0, transparent 50%);
+    }
+
+    .page-enter {
+        animation: page-enter 0.45s ease-out both;
+    }
+
+    @keyframes page-enter {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+@layer components {
+    .surface-card {
+        @apply rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/40 transition-all duration-200 ease-out dark:border-slate-800/80 dark:bg-slate-900 dark:shadow-none;
+    }
+
+    .surface-card:hover {
+        @apply -translate-y-0.5 border-primary-200/70 shadow-md shadow-slate-200/50 dark:border-primary-800/40 dark:shadow-none;
+    }
+
+    .surface-card-static {
+        @apply rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/40 dark:border-slate-800/80 dark:bg-slate-900 dark:shadow-none;
+    }
+
+    .stat-card-interactive {
+        @apply rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/40 transition-all duration-200 ease-out dark:border-slate-800/80 dark:bg-slate-900 dark:shadow-none;
+    }
+
+    .stat-card-interactive:hover {
+        @apply -translate-y-0.5 border-primary-200/70 shadow-md shadow-slate-200/50 dark:border-primary-800/40 dark:shadow-none;
+    }
+
+    .icon-btn {
+        @apply rounded-xl p-2 text-slate-500 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-slate-100 hover:text-slate-800 hover:shadow-sm dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100;
+    }
+
+    .form-control {
+        @apply block w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-200 placeholder:text-slate-400 hover:border-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500 dark:hover:border-slate-600;
+    }
+
+    .form-control-sm {
+        @apply mt-1 block w-full min-w-[5rem] rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs shadow-sm transition-all duration-200 hover:border-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:border-slate-600;
+    }
+
+    .list-row {
+        @apply flex items-center justify-between rounded-xl border-b border-slate-100 px-2 py-3.5 transition-all duration-150 last:mb-0.5 last:border-0 dark:border-slate-800;
+    }
+
+    .list-row-link {
+        @apply flex items-center justify-between rounded-xl border-b border-slate-100 px-2 py-3.5 transition-all duration-200 ease-out last:mb-0.5 last:border-0 dark:border-slate-800 -mx-2 cursor-pointer hover:-translate-y-px hover:bg-slate-50 hover:shadow-sm dark:hover:bg-slate-800/60;
+    }
+
+    .data-table thead tr:first-child {
+        @apply text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400;
+    }
+
+    .data-table thead tr:first-child th {
+        @apply py-3 pr-4;
+    }
+
+    .data-table tbody tr {
+        @apply transition hover:bg-slate-50/80 dark:hover:bg-slate-800/40;
+    }
+
+    .data-table tbody td {
+        @apply py-3 pr-4;
+    }
+
+    .flash-banner {
+        @apply flex items-start gap-3 rounded-xl border px-4 py-3 text-sm shadow-sm;
+    }
+
+    .flash-banner-success {
+        @apply flex items-start gap-3 rounded-xl border border-emerald-200/80 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 shadow-sm dark:border-emerald-800/50 dark:bg-emerald-950/40 dark:text-emerald-200;
     }
 }
 

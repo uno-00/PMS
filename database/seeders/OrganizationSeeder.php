@@ -13,24 +13,35 @@ class OrganizationSeeder extends Seeder
 {
     public function run(): void
     {
-        AgencyProfile::query()->firstOrCreate(['name' => 'Department of Sample Government Services'], [
-            'acronym' => 'DSGS',
-            'agency_code' => '01-001',
-            'address' => 'Government Center, Quezon City, Metro Manila',
-            'region' => 'NCR',
+        $brhmc = [
+            'name' => 'Bicol Regional Hospital and Medical Center',
+            'acronym' => 'BRHMC',
+            'agency_code' => 'BRHMC-01',
+            'address' => 'Rizal Avenue corner Bagtang Road, Barangay Sagpon, Daraga, Albay, Philippines',
+            'region' => 'Region V',
             'tin' => '000-000-000-000',
-            'head_of_agency' => 'Hon. Juan Dela Cruz',
-            'hope_position' => 'Secretary',
+            'head_of_agency' => 'Dr. Juan Dela Cruz',
+            'hope_position' => 'Hospital Chief / Medical Center Chief II',
             'bac_chairperson' => 'Atty. Maria Santos',
-            'contact_email' => 'info@dsgs.gov.ph',
-            'contact_phone' => '(02) 8888-0000',
-            'philgeps_organization_id' => 'DSGS-0001',
-        ]);
+            'contact_email' => 'procurement@brhmc.doh.gov.ph',
+            'contact_phone' => '(052) 742-0000',
+            'philgeps_organization_id' => 'BRHMC-0001',
+        ];
+
+        AgencyProfile::query()
+            ->where('acronym', 'DSGS')
+            ->orWhere('agency_code', '01-001')
+            ->orWhere('name', 'Department of Sample Government Services')
+            ->update($brhmc);
+
+        AgencyProfile::query()->updateOrCreate(['agency_code' => 'BRHMC-01'], $brhmc);
+
+        AgencyProfile::resetCached();
 
         $departments = [
-            ['code' => 'OSEC', 'name' => 'Office of the Secretary'],
+            ['code' => 'OSEC', 'name' => 'Office of the Medical Center Chief'],
             ['code' => 'FMS', 'name' => 'Finance and Management Service'],
-            ['code' => 'ITS', 'name' => 'Information Technology Service'],
+            ['code' => 'ITS', 'name' => 'Health Information Management Service'],
             ['code' => 'GSS', 'name' => 'General Services'],
         ];
 
@@ -38,10 +49,23 @@ class OrganizationSeeder extends Seeder
             $department = Department::query()->firstOrCreate(['code' => $dept['code']], $dept);
 
             $divisions = match ($dept['code']) {
-                'OSEC' => [['code' => 'OSEC-PLN', 'name' => 'Planning Division'], ['code' => 'OSEC-LEG', 'name' => 'Legal Division']],
-                'FMS' => [['code' => 'FMS-BUD', 'name' => 'Budget Division'], ['code' => 'FMS-ACC', 'name' => 'Accounting Division'], ['code' => 'FMS-CSH', 'name' => 'Cash Division']],
-                'ITS' => [['code' => 'ITS-DEV', 'name' => 'Systems Development Division'], ['code' => 'ITS-NET', 'name' => 'Network & Infrastructure Division']],
-                'GSS' => [['code' => 'GSS-SUP', 'name' => 'Supply and Property Division'], ['code' => 'GSS-BAC', 'name' => 'BAC Secretariat Division']],
+                'OSEC' => [
+                    ['code' => 'OSEC-PLN', 'name' => 'Planning and Quality Management (Implementing Unit)'],
+                    ['code' => 'OSEC-LEG', 'name' => 'Legal Division'],
+                ],
+                'FMS' => [
+                    ['code' => 'FMS-BUD', 'name' => 'Budget Division (Implementing Unit)'],
+                    ['code' => 'FMS-ACC', 'name' => 'Accounting Division'],
+                    ['code' => 'FMS-CSH', 'name' => 'Cash Division'],
+                ],
+                'ITS' => [
+                    ['code' => 'ITS-DEV', 'name' => 'HMIS / Systems Development (Implementing Unit)'],
+                    ['code' => 'ITS-NET', 'name' => 'Network & Infrastructure Division'],
+                ],
+                'GSS' => [
+                    ['code' => 'GSS-SUP', 'name' => 'Supply and Pharmacy (Implementing Unit)'],
+                    ['code' => 'GSS-BAC', 'name' => 'BAC Secretariat Division'],
+                ],
                 default => [],
             };
 
@@ -60,6 +84,6 @@ class OrganizationSeeder extends Seeder
             }
         }
 
-        $this->command?->info('Organizational structure seeded: '.Department::count().' departments, '.Division::count().' divisions.');
+        $this->command?->info('BRHMC organizational structure seeded: '.Department::count().' departments, '.Division::count().' divisions.');
     }
 }

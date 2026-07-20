@@ -1,19 +1,25 @@
 <div x-data="{ open: false, showPassword: false }">
-    <div class="mb-8">
-        <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Sign in to your account</h2>
-        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Use your agency-issued credentials to continue.</p>
+    <div class="mb-8 text-center sm:text-left">
+        <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300 sm:mx-0">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A3.75 3.75 0 0012 2.25 3.75 3.75 0 008.25 5.25V9m-7.5 0h15A2.25 2.25 0 0121 11.25v6.75A2.25 2.25 0 0118.75 20.25H5.25A2.25 2.25 0 013 18V11.25A2.25 2.25 0 015.25 9z" />
+            </svg>
+        </div>
+        <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Sign in to your account</h2>
+        <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">Use your agency-issued credentials to continue.</p>
     </div>
 
     @if (session('status'))
-        <div class="mb-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
-            {{ session('status') }}
+        <div class="flash-banner-success mb-4">
+            <svg class="mt-0.5 h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span>{{ session('status') }}</span>
         </div>
     @endif
 
     <form wire:submit="login" class="space-y-5">
         <div>
             <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Email address</label>
-            <div class="mt-1.5 flex items-stretch overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm transition focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/40 dark:border-slate-700 dark:bg-slate-900">
+            <div class="mt-1.5 flex items-stretch overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm transition-all duration-200 hover:border-slate-400 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/40 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600">
                 <span class="flex w-11 shrink-0 items-center justify-center border-r border-slate-200 text-slate-400 dark:border-slate-700">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0-.414.336-.75.75-.75h18a.75.75 0 01.75.75v10.5a.75.75 0 01-.75.75H3a.75.75 0 01-.75-.75V6.75z" />
@@ -29,7 +35,7 @@
 
         <div>
             <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
-            <div class="mt-1.5 flex items-stretch overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm transition focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/40 dark:border-slate-700 dark:bg-slate-900">
+            <div class="mt-1.5 flex items-stretch overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm transition-all duration-200 hover:border-slate-400 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/40 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600">
                 <span class="flex w-11 shrink-0 items-center justify-center border-r border-slate-200 text-slate-400 dark:border-slate-700">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
@@ -59,12 +65,10 @@
             </label>
         </div>
 
-        <button type="submit"
-                class="flex w-full items-center justify-center rounded-lg bg-primary-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                wire:loading.attr="disabled">
+        <x-button type="submit" class="w-full" wire:loading.attr="disabled">
             <span wire:loading.remove wire:target="login">Sign in</span>
             <span wire:loading wire:target="login">Signing in&hellip;</span>
-        </button>
+        </x-button>
     </form>
 
     <p class="mt-8 text-center text-xs text-slate-400">
@@ -72,9 +76,9 @@
     </p>
 
     @if ($this->demoAccountsEnabled)
-        <div class="mt-8 rounded-lg border border-dashed border-slate-300 dark:border-slate-700">
+        <div class="mt-8 overflow-hidden rounded-xl border border-dashed border-slate-300/80 dark:border-slate-700">
             <button type="button" @click="open = !open"
-                    class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-slate-600 dark:text-slate-300">
+                    class="flex w-full items-center justify-between bg-slate-50/80 px-4 py-3.5 text-left text-sm font-medium text-slate-600 transition hover:bg-slate-100 dark:bg-slate-800/50 dark:text-slate-300 dark:hover:bg-slate-800">
                 <span>Demo / test accounts (UAT only)</span>
                 <svg :class="open ? 'rotate-180' : ''" class="h-4 w-4 shrink-0 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -92,7 +96,7 @@
                                 wire:click="loginAsDemo('{{ $account['email'] }}')"
                                 wire:loading.attr="disabled"
                                 wire:target="loginAsDemo"
-                                class="flex flex-col rounded-md px-2 py-1.5 text-left text-xs transition hover:bg-slate-100 disabled:opacity-50 dark:hover:bg-slate-800">
+                                class="flex flex-col rounded-lg border border-transparent px-2.5 py-2 text-left text-xs transition-all duration-200 hover:-translate-y-px hover:border-slate-200 hover:bg-white hover:shadow-sm disabled:opacity-50 dark:hover:border-slate-700 dark:hover:bg-slate-900">
                             <span class="font-medium text-slate-700 dark:text-slate-200">{{ $account['role'] }}</span>
                             <span class="text-slate-400">{{ $account['email'] }}</span>
                         </button>

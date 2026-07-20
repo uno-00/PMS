@@ -2,7 +2,7 @@
     $loginBackgroundUrl = \App\Models\Settings\AgencyProfile::current()->loginBackgroundUrl();
 @endphp
 
-<div {{ $attributes->merge(['class' => 'theme-gradient-panel relative hidden w-1/2 flex-col justify-between overflow-hidden p-12 text-white lg:flex']) }}>
+<div {{ $attributes->merge(['class' => 'theme-gradient-panel relative hidden w-1/2 flex-col justify-between overflow-hidden p-12 text-white shadow-2xl shadow-primary-950/30 lg:flex']) }}>
     @if ($loginBackgroundUrl)
         <div
             class="absolute inset-0 bg-cover bg-center"

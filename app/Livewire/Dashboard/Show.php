@@ -15,6 +15,7 @@ use App\Models\Budget\BudgetAllocation;
 use App\Models\Budget\GeneralAppropriationsAct;
 use App\Models\Planning\AnnualProcurementPlan;
 use App\Models\Planning\Ppmp;
+use App\Models\Planning\PpmpItem;
 use App\Models\Procurement\CertificateOfAvailabilityOfFunds;
 use App\Models\Procurement\NoticeOfAward;
 use App\Models\Procurement\PurchaseRequest;
@@ -57,31 +58,35 @@ class Show extends Component
 
     protected function executiveData(?FiscalYear $fy): array
     {
-        return [
+        $spend = $this->monthlySpendSeries($fy);
+        $caseStatusCounts = BacProcurement::query()->selectRaw('status, count(*) as c')->groupBy('status')->pluck('c', 'status');
+
+        return array_merge($spend, [
             'totalGaa' => $fy ? GeneralAppropriationsAct::query()->where('fiscal_year_id', $fy->id)->sum('total_amount') : 0,
             'totalUtilized' => $fy ? BudgetAllocation::query()->where('fiscal_year_id', $fy->id)->whereNull('parent_id')->sum('utilized_amount') : 0,
             'appStatusCounts' => $fy ? AnnualProcurementPlan::query()->where('fiscal_year_id', $fy->id)->selectRaw('status, count(*) as c')->groupBy('status')->pluck('c', 'status') : collect(),
             'ppmpStatusCounts' => Ppmp::query()->selectRaw('status, count(*) as c')->groupBy('status')->pluck('c', 'status'),
             'prStatusCounts' => PurchaseRequest::query()->selectRaw('status, count(*) as c')->groupBy('status')->pluck('c', 'status'),
-            'caseStatusCounts' => BacProcurement::query()->selectRaw('status, count(*) as c')->groupBy('status')->pluck('c', 'status'),
+            'caseStatusCounts' => $caseStatusCounts,
+            'caseStatusChartItems' => $this->procurementStatusChartItems($caseStatusCounts),
             'upcomingEvents' => BacCalendarEvent::query()->with('procurement')->where('scheduled_at', '>=', now())->orderBy('scheduled_at')->limit(5)->get(),
             'recentAwards' => NoticeOfAward::query()->with(['procurement', 'bidder'])->latest()->limit(5)->get(),
             'monthlyPr' => PurchaseRequest::query()->selectRaw("strftime('%m', created_at) as m, count(*) as c")->groupBy('m')->pluck('c', 'm'),
-        ];
+        ]);
     }
 
     protected function budgetData(?FiscalYear $fy): array
     {
         $allocations = $fy ? BudgetAllocation::query()->where('fiscal_year_id', $fy->id)->whereNull('parent_id')->with('department')->get() : collect();
 
-        return [
+        return array_merge($this->monthlySpendSeries($fy), [
             'gaa' => $fy ? GeneralAppropriationsAct::query()->where('fiscal_year_id', $fy->id)->first() : null,
             'allocations' => $allocations,
             'totalAllocated' => $allocations->sum('allocated_amount'),
             'totalUtilized' => $allocations->sum('utilized_amount'),
             'pendingCaf' => CertificateOfAvailabilityOfFunds::query()->where('status', '!=', CafStatus::Printed)->count(),
             'pendingBudgetReviewPr' => PurchaseRequest::query()->where('status', PurchaseRequestStatus::Budget)->count(),
-        ];
+        ]);
     }
 
     protected function bacData(): array
@@ -127,12 +132,87 @@ class Show extends Component
 
     protected function analyticsData(?FiscalYear $fy): array
     {
-        return [
+        return array_merge($this->monthlySpendSeries($fy), [
             'totalGaa' => $fy ? GeneralAppropriationsAct::query()->where('fiscal_year_id', $fy->id)->sum('total_amount') : 0,
             'monthlyPr' => PurchaseRequest::query()->selectRaw("strftime('%m', created_at) as m, count(*) as c")->groupBy('m')->pluck('c', 'm'),
             'caseStatusCounts' => BacProcurement::query()->selectRaw('status, count(*) as c')->groupBy('status')->pluck('c', 'status'),
             'topSuppliers' => NoticeOfAward::query()->selectRaw('bidder_id, count(*) as awards')->groupBy('bidder_id')->orderByDesc('awards')->with('bidder')->limit(5)->get(),
             'auditEventsToday' => Activity::query()->whereDate('created_at', today())->count(),
+        ]);
+    }
+
+    /** @return array{monthlyPlannedSpend: array<int, float>, monthlyActualSpend: array<int, float>, spendOnTrack: bool|null} */
+    protected function monthlySpendSeries(?FiscalYear $fy): array
+    {
+        $planned = collect(range(1, 12))->map(function (int $month) use ($fy): float {
+            if (! $fy) {
+                return 0.0;
+            }
+
+            $key = str_pad((string) $month, 2, '0', STR_PAD_LEFT);
+
+            $amount = PpmpItem::query()
+                ->whereHas('ppmp', fn ($q) => $q->where('fiscal_year_id', $fy->id))
+                ->whereNotNull('schedule_start')
+                ->whereRaw("strftime('%m', schedule_start) = ?", [$key])
+                ->sum('abc');
+
+            return round((float) $amount / 1_000_000, 2);
+        });
+
+        $actual = collect(range(1, 12))->map(function (int $month) use ($fy): float {
+            if (! $fy) {
+                return 0.0;
+            }
+
+            $key = str_pad((string) $month, 2, '0', STR_PAD_LEFT);
+
+            $amount = PurchaseRequest::query()
+                ->where('fiscal_year_id', $fy->id)
+                ->whereRaw("strftime('%m', created_at) = ?", [$key])
+                ->sum('total_amount');
+
+            return round((float) $amount / 1_000_000, 2);
+        });
+
+        $currentMonth = (int) now()->format('n');
+        $plannedYtd = $planned->take($currentMonth)->sum();
+        $actualYtd = $actual->take($currentMonth)->sum();
+
+        $onTrack = null;
+        if ($plannedYtd > 0) {
+            $onTrack = $actualYtd <= ($plannedYtd * 1.05);
+        }
+
+        return [
+            'monthlyPlannedSpend' => $planned->values()->all(),
+            'monthlyActualSpend' => $actual->values()->all(),
+            'spendOnTrack' => $onTrack,
         ];
+    }
+
+    /** @return array<int, array{label: string, value: int, color: string}> */
+    protected function procurementStatusChartItems($counts): array
+    {
+        return collect($counts)
+            ->map(function ($count, $status) {
+                $enum = ProcurementCaseStatus::from($status);
+
+                return [
+                    'label' => $enum->label(),
+                    'value' => (int) $count,
+                    'color' => match ($enum->color()) {
+                        'slate' => '#64748b',
+                        'amber' => '#d97706',
+                        'indigo' => '#4f46e5',
+                        'emerald' => '#059669',
+                        'red' => '#dc2626',
+                        default => '#94a3b8',
+                    },
+                ];
+            })
+            ->sortByDesc('value')
+            ->values()
+            ->all();
     }
 }

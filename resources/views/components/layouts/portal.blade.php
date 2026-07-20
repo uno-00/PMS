@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ?? 'Supplier / Bidder Portal' }} &middot; {{ config('app.name') }}</title>
     <link rel="icon" href="data:,">
+    <x-font-inter />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <x-theme-variables />
     @livewireStyles
 </head>
 <body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
-    <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
+    <header class="sticky top-0 z-20 border-b border-slate-200/80 bg-white/85 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/85">
         <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
             <div class="flex items-center gap-6">
                 <a href="{{ route('bidder.dashboard') }}" class="min-w-0">
@@ -55,12 +56,13 @@
     </header>
 
     @if (session('status'))
-        <div class="mx-auto mt-4 max-w-7xl rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 sm:px-6">
-            {{ session('status') }}
+        <div class="flash-banner-success mx-auto mt-4 max-w-7xl sm:px-6" role="status">
+            <svg class="mt-0.5 h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span>{{ session('status') }}</span>
         </div>
     @endif
 
-    <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+    <main class="app-shell-bg page-enter mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:py-8">
         {{ $slot }}
     </main>
 

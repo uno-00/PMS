@@ -42,6 +42,7 @@
     $sizeClass = $compact ? 'h-8 w-8 text-xs' : 'h-9 w-9 text-sm';
     $nameSizeClass = $compact ? 'text-sm' : 'text-sm';
     $taglineSizeClass = $compact ? 'text-[11px]' : 'text-xs';
+    $stackClass = $compact ? 'leading-tight' : 'flex flex-col justify-center leading-tight';
 @endphp
 
 @if($href)
@@ -56,7 +57,7 @@
                 {{ $initials }}
             </div>
         @endif
-        <div class="min-w-0 leading-tight">
+        <div class="min-w-0 {{ $stackClass }}">
             <p class="{{ $nameSizeClass }} truncate font-semibold {{ $nameClass }}">{{ $name }}</p>
             @if($tagline && ! $compact)
                 <p class="{{ $taglineSizeClass }} truncate {{ $taglineClass }}">{{ $tagline }}</p>

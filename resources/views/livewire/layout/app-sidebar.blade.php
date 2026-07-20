@@ -1,4 +1,4 @@
-<nav class="space-y-6 px-3 py-5 text-sm" wire:key="app-sidebar-nav">
+<nav class="space-y-6 px-3 py-5 text-sm lg:pt-4" wire:key="app-sidebar-nav">
     <x-nav-group title="Overview">
         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard*')" icon="home">Dashboard</x-nav-link>
     </x-nav-group>

@@ -288,7 +288,7 @@ class SampleBacProcurementSeeder extends Seeder
                 'tax_amount' => 0,
                 'total_amount' => $pr->total_amount,
                 'delivery_date' => now()->addDays(10),
-                'delivery_place' => 'DSGS Property Section, Quezon City',
+                'delivery_place' => 'BRHMC Property Section, Daraga, Albay',
             ], $this->supplyOfficer);
         }
 
