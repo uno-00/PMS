@@ -57,14 +57,17 @@ COPY docker/railway-start.sh /usr/local/bin/railway-start.sh
 
 RUN chmod +x /usr/local/bin/railway-start.sh \
     && mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+    && chmod -R 775 storage bootstrap/cache \
+    && php artisan package:discover --ansi || true
 
 ENV APP_ENV=production \
     APP_DEBUG=false \
+    APP_TIMEZONE=Asia/Manila \
     LOG_CHANNEL=stderr \
+    DB_CONNECTION=mysql \
     SESSION_DRIVER=file \
     CACHE_STORE=file \
-    QUEUE_CONNECTION=database \
+    QUEUE_CONNECTION=sync \
     DOCUMENTS_DISK_DRIVER=local \
     RUN_SEED=false
 
