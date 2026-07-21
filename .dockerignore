@@ -19,7 +19,6 @@ bootstrap/cache/*.php
 tests
 .phpunit.result.cache
 docker
-!docker/railway-start.sh
 docker-compose*.yml
 Dockerfile
 *.md

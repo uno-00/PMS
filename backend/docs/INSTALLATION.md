@@ -13,13 +13,14 @@
 ```bash
 git clone <repo-url> pms-procurement
 cd pms-procurement
-composer install
-npm install
+cd backend && composer install
+cd ../frontend && npm install
 ```
 
 ## 3. Configure the environment
 
 ```bash
+cd backend
 cp .env.example .env
 php artisan key:generate
 ```
@@ -38,6 +39,7 @@ Edit `.env` and set at minimum:
 ## 4. Database
 
 ```bash
+cd backend
 php artisan migrate --seed
 ```
 
@@ -56,7 +58,9 @@ See `docs/TEST_ACCOUNTS.md` for the full credential list.
 ## 5. Build frontend assets and link storage
 
 ```bash
+cd backend
 php artisan storage:link
+cd ../frontend
 npm run build      # production build
 # or: npm run dev  # Vite dev server with HMR
 ```
@@ -67,12 +71,14 @@ The fastest way to run everything (web server, queue worker, log tailer,
 Vite dev server) in one terminal:
 
 ```bash
+cd backend
 composer run dev
 ```
 
 Or individually:
 
 ```bash
+cd backend
 php artisan serve
 php artisan queue:listen
 php artisan schedule:work   # simulates the cron-driven scheduler locally
@@ -85,9 +91,9 @@ Portal is at `http://localhost:8000/bidder/login`.
 ## 7. Run the test suite
 
 ```bash
-composer test
+cd backend && composer test
 # or
-php artisan test
+cd backend && php artisan test
 ```
 
 19 feature tests / 79+ assertions cover: RBAC route protection, the full

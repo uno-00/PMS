@@ -28,8 +28,8 @@ Event-Driven Architecture
   a single `HasWorkflow::transitionTo()` choke point that also writes an
   immutable `workflow_histories` audit entry on every transition.
 - **19 roles / 101 permissions** (Spatie Laravel Permission + Laravel
-  Policies/Gates), fully admin-editable at runtime from **Settings** — see
-  `docs/RBAC.md`.
+  Policies/Gates),   fully admin-editable at runtime from **Settings** — see
+  [`backend/docs/RBAC.md`](backend/docs/RBAC.md).
 - **Nothing hardcoded**: procurement thresholds, approval routing, modes of
   procurement, fund sources, UACS codes, PAPs, cost centers, departments,
   divisions, password policy, session timeout, SMTP/SMS/PhilGEPS/AWS
@@ -44,7 +44,7 @@ Event-Driven Architecture
   bid submission (deadline-locked), clarifications, and award tracking.
 - **AWS S3 document management**: private, versioned, encrypted bucket with
   a fixed folder taxonomy, signed URLs, and a configurable retention
-  lifecycle — see `docs/AWS_DEPLOYMENT.md`.
+  lifecycle — see [`backend/docs/AWS_DEPLOYMENT.md`](backend/docs/AWS_DEPLOYMENT.md).
 - **Printable government forms** (PPMP, APP, PR, CAF, ORS/BURS, Abstract of
   Bids, Minutes, Attendance, BAC Resolution, NOA, NTP, PO, Inspection/
   Acceptance/Delivery reports) as PDFs with QR-code verification and
@@ -61,16 +61,15 @@ Event-Driven Architecture
 
 | Document | Purpose |
 |---|---|
-| [`docs/INSTALLATION.md`](docs/INSTALLATION.md) | Local development setup |
-| [`docs/RAILWAY_DEPLOYMENT.md`](docs/RAILWAY_DEPLOYMENT.md) | 24/7 cloud demo (Railway) |
-| [`docs/DOCKER.md`](docs/DOCKER.md) | Multi-container Docker Compose stack |
-| [`docs/AWS_DEPLOYMENT.md`](docs/AWS_DEPLOYMENT.md) | Production AWS deployment (ECS, RDS, S3, IAM) |
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Layered design, ERD, workflow state machines, sequence diagrams |
-| [`docs/RBAC.md`](docs/RBAC.md) | Roles, permissions, and dashboards |
-| [`docs/SECURITY.md`](docs/SECURITY.md) | Authentication, authorization, encryption, audit trail |
-| [`docs/BACKUP_RESTORE.md`](docs/BACKUP_RESTORE.md) | Database and document backup/restore runbook |
-| [`docs/API.md`](docs/API.md) | JSON API reference (see also `storage/api-docs/openapi.yaml`) |
-| [`docs/TEST_ACCOUNTS.md`](docs/TEST_ACCOUNTS.md) | Seeded demo accounts (internal + Bidder Portal) |
+| [`backend/docs/INSTALLATION.md`](backend/docs/INSTALLATION.md) | Local development setup |
+| [`backend/docs/DOCKER.md`](backend/docs/DOCKER.md) | Multi-container Docker Compose stack |
+| [`backend/docs/AWS_DEPLOYMENT.md`](backend/docs/AWS_DEPLOYMENT.md) | Production AWS deployment (ECS, RDS, S3, IAM) |
+| [`backend/docs/ARCHITECTURE.md`](backend/docs/ARCHITECTURE.md) | Layered design, ERD, workflow state machines, sequence diagrams |
+| [`backend/docs/RBAC.md`](backend/docs/RBAC.md) | Roles, permissions, and dashboards |
+| [`backend/docs/SECURITY.md`](backend/docs/SECURITY.md) | Authentication, authorization, encryption, audit trail |
+| [`backend/docs/BACKUP_RESTORE.md`](backend/docs/BACKUP_RESTORE.md) | Database and document backup/restore runbook |
+| [`backend/docs/API.md`](backend/docs/API.md) | JSON API reference (see also `storage/api-docs/openapi.yaml`) |
+| [`backend/docs/TEST_ACCOUNTS.md`](backend/docs/TEST_ACCOUNTS.md) | Seeded demo accounts (internal + Bidder Portal) |
 
 Full step-by-step **User Manuals** (per module and per role) are built into
 the application itself: sign in and open **Help** in the sidebar.
@@ -78,53 +77,44 @@ the application itself: sign in and open **Help** in the sidebar.
 ## Quick start
 
 ```bash
-composer install && npm install
+cd backend && composer install
 cp .env.example .env && php artisan key:generate
 php artisan migrate --seed
-npm run build
-php artisan storage:link
+cd ../frontend && npm install && npm run build
+cd ../backend && php artisan storage:link
 composer run dev
 ```
 
 Visit `http://localhost:8000` and sign in with any account from
-[`docs/TEST_ACCOUNTS.md`](docs/TEST_ACCOUNTS.md) (default password:
+[`backend/docs/TEST_ACCOUNTS.md`](backend/docs/TEST_ACCOUNTS.md) (default password:
 `Passw0rd!2026`). Full instructions, troubleshooting, and a Docker-based
-alternative are in [`docs/INSTALLATION.md`](docs/INSTALLATION.md) and
-[`docs/DOCKER.md`](docs/DOCKER.md).
+alternative are in [`backend/docs/INSTALLATION.md`](backend/docs/INSTALLATION.md) and
+[`backend/docs/DOCKER.md`](backend/docs/DOCKER.md).
 
 ## Testing
 
 ```bash
-composer test
+cd backend && composer test
 ```
 
 Feature tests cover RBAC route protection and the full budget-integrity and
 procurement-lifecycle business rules end to end (GAA → CAF and
 BAC → Bidding → Award → NTP → PO → Delivery → Inspection → Acceptance →
-Payment) — see `tests/Feature/Workflow/`.
+Payment) — see `backend/tests/Feature/Workflow/`.
 
 ## Project layout
 
 ```
-app/
-  Enums/            Workflow status enums (Transitionable contract)
-  Events/ Listeners/  Domain events driving cross-module side effects
-  Http/Controllers/Api/V1/  Read-only JSON API
-  Livewire/         UI components, one namespace per module
-  Models/           Eloquent models (UUID PKs), grouped by domain
-  Notifications/    Mail notifications (NOA, NTP, PhilGEPS, clarifications, ...)
-  Policies/         Authorization rules per model
-  Repositories/      Query abstraction for high-traffic aggregates
-  Services/         Business rules, transactions, workflow transitions
-  Support/          Roles, Permissions, PasswordPolicy, HelpContent helpers
-database/
-  factories/ migrations/ seeders/
-docker/             Dockerfile support files (php.ini, nginx, entrypoint)
-docs/               Deliverable documentation (this table, above)
-resources/views/livewire/   Blade views matching each Livewire component
-routes/             web.php, api.php, bidder_portal.php, console.php
-storage/api-docs/   OpenAPI 3.0 spec
-tests/Feature/      Smoke tests + Workflow lifecycle tests
+backend/              Laravel API, Livewire, migrations, tests
+  app/                Application code
+  routes/             Web, API, console routes
+  database/           Migrations and seeders
+  public/             Web root and compiled assets
+  docs/               Project documentation
+frontend/             UI layer
+  resources/views/    Blade + Livewire templates
+  resources/css/      Tailwind design system
+  resources/js/       Vite entry points (Chart.js, Quill, Alpine)
 ```
 
 ## License

@@ -26,7 +26,12 @@ return [
     |
     */
 
-    'view_path' => resource_path('views/livewire'),
+    'view_path' => value(function () {
+        $frontendLivewire = dirname(base_path()).DIRECTORY_SEPARATOR.'frontend'
+            .DIRECTORY_SEPARATOR.'resources'.DIRECTORY_SEPARATOR.'views'.DIRECTORY_SEPARATOR.'livewire';
+
+        return is_dir($frontendLivewire) ? $frontendLivewire : resource_path('views/livewire');
+    }),
 
     /*
     |---------------------------------------------------------------------------

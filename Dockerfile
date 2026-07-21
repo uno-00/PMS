@@ -6,10 +6,10 @@
 FROM node:22-alpine AS frontend
 
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
-COPY resources/ resources/
-COPY vite.config.js ./
+COPY frontend/resources/ resources/
+COPY frontend/vite.config.js ./
 RUN npm run build
 
 #############################################
@@ -18,8 +18,8 @@ RUN npm run build
 FROM composer:2 AS vendor
 
 WORKDIR /app
-COPY database/ database/
-COPY composer.json composer.lock ./
+COPY backend/database/ database/
+COPY backend/composer.json backend/composer.lock ./
 RUN composer install \
     --no-dev \
     --no-interaction \
@@ -38,7 +38,6 @@ LABEL maintainer="PMS Engineering" \
 
 WORKDIR /var/www/html
 
-# System packages required by the PHP extensions and by DomPDF/QR/Excel exports.
 RUN apk add --no-cache \
         bash \
         curl \
@@ -62,13 +61,13 @@ RUN apk add --no-cache \
         zip \
     && apk del --no-cache libpng-dev libjpeg-turbo-dev libwebp-dev freetype-dev icu-dev oniguruma-dev libzip-dev
 
-COPY docker/php/php.ini /usr/local/etc/php/conf.d/99-pms.ini
-COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/98-opcache.ini
-COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY backend/docker/php/php.ini /usr/local/etc/php/conf.d/99-pms.ini
+COPY backend/docker/php/opcache.ini /usr/local/etc/php/conf.d/98-opcache.ini
+COPY backend/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Application source
-COPY . .
+COPY backend/ .
+COPY frontend/resources/ resources/
 COPY --from=vendor /app/vendor ./vendor
 COPY --from=frontend /app/public/build ./public/build
 
