@@ -43,6 +43,7 @@ RUN apk add --no-cache \
         bcmath \
         gd \
         intl \
+        mbstring \
         opcache \
         pcntl \
         pdo_mysql \
@@ -65,7 +66,7 @@ ENV APP_ENV=production \
     CACHE_STORE=database \
     QUEUE_CONNECTION=database \
     DOCUMENTS_DISK_DRIVER=local \
-    RUN_SEED=true
+    RUN_SEED=false
 
 EXPOSE 8080
 

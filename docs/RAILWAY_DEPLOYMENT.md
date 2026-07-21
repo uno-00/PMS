@@ -10,14 +10,14 @@ Deploy the PMS to Railway so the public link keeps working **even when your PC i
 
 ## 1. Prerequisites
 
-- GitHub repo: `redimatrading-trading/bicol-procurement` (branch `ysa-branch`)
+- GitHub repo: [`uno-00/PMS`](https://github.com/uno-00/PMS) (branch `ysa-branch`)
 - [Railway account](https://railway.com/) (GitHub login)
 - ~$5 credit/month on free trial; stable demo usually needs **Hobby plan (~$5/mo)**
 
 ## 2. Create the project
 
 1. Open [railway.com/new](https://railway.com/new)
-2. **Deploy from GitHub repo** → select `bicol-procurement`
+2. **Deploy from GitHub repo** → select [`uno-00/PMS`](https://github.com/uno-00/PMS)
 3. Set branch to **`ysa-branch`**
 4. Railway detects `railway.toml` and builds with `Dockerfile.railway`
 
@@ -92,7 +92,7 @@ Set `RUN_SEED=false` so redeploys do not re-seed the database.
 | Issue | Fix |
 |-------|-----|
 | Build fails on Composer | Check `composer.lock` is committed |
-| 502 / not ready | Wait for migrate+seed; check Deploy logs |
+| Build OK but healthcheck fails | Server now starts before migrate/seed; ensure MySQL variables are linked; set `RUN_SEED=true` only on first deploy |
 | CSS broken | Image includes `npm run build`; redeploy |
 | Login works locally only | Set `APP_URL` to Railway domain |
 | Mixed content / http assets | `APP_URL` must start with `https://` |
