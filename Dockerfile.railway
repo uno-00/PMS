@@ -62,8 +62,8 @@ RUN chmod +x /usr/local/bin/railway-start.sh \
 ENV APP_ENV=production \
     APP_DEBUG=false \
     LOG_CHANNEL=stderr \
-    SESSION_DRIVER=database \
-    CACHE_STORE=database \
+    SESSION_DRIVER=file \
+    CACHE_STORE=file \
     QUEUE_CONNECTION=database \
     DOCUMENTS_DISK_DRIVER=local \
     RUN_SEED=false

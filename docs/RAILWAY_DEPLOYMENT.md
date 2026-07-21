@@ -48,8 +48,8 @@ Add these on the **web service** (not MySQL):
 | `APP_TIMEZONE` | `Asia/Manila` |
 | `RUN_SEED` | `true` (first deploy only; set `false` after) |
 | `LOG_CHANNEL` | `stderr` |
-| `SESSION_DRIVER` | `database` |
-| `CACHE_STORE` | `database` |
+| `SESSION_DRIVER` | `file` |
+| `CACHE_STORE` | `file` |
 | `QUEUE_CONNECTION` | `database` |
 | `DOCUMENTS_DISK_DRIVER` | `local` |
 
@@ -71,7 +71,7 @@ Railway builds the Docker image (~5–8 min). On boot the container:
 3. Seeds demo data (if `RUN_SEED=true`)
 4. Starts the app on port `$PORT`
 
-Health check: `GET /up`
+Health check: `GET /healthz.php` (static probe). App health: `GET /up`.
 
 ## 7. Test login
 
@@ -92,7 +92,8 @@ Set `RUN_SEED=false` so redeploys do not re-seed the database.
 | Issue | Fix |
 |-------|-----|
 | Build fails on Composer | Check `composer.lock` is committed |
-| Build OK but healthcheck fails | Link MySQL variables on the web service; set `RUN_SEED=true` only on first deploy; check Deploy Logs for `database not reachable` |
+| Build OK but healthcheck fails | Link MySQL variables; check Deploy Logs for `missing DB_HOST` or `database not reachable` |
+| Login 500 after deploy green | Wait for migrate/seed in logs; set `RUN_SEED=true` on first deploy |
 | Service shows "Unexposed" | Web service → **Settings** → **Networking** → **Generate Domain** |
 | CSS broken | Image includes `npm run build`; redeploy |
 | Login works locally only | Set `APP_URL` to Railway domain |
