@@ -7,11 +7,9 @@ use App\Models\Bac\Procurement;
 use App\Services\Bac\BiddingService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 /** Phase 13: BAC TWG bid evaluation matrix — compliance, ranking, remarks, recommendation. */
-#[Layout('components.layouts.app')]
 class BidEvaluationShow extends Component
 {
     public Procurement $procurement;

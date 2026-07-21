@@ -4,10 +4,8 @@ namespace App\Livewire\Payment;
 
 use App\Models\Procurement\Payment;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
 class PaymentShow extends Component
 {
     public Payment $payment;

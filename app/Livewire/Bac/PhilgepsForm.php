@@ -7,10 +7,8 @@ use App\Models\Bac\Procurement;
 use App\Services\Bac\PhilgepsPostingService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
 class PhilgepsForm extends Component
 {
     public ?PhilgepsPosting $posting = null;

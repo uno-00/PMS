@@ -15,10 +15,8 @@ use App\Models\Settings\UacsCode;
 use App\Services\Budget\BudgetAllocationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
 class AllocationForm extends Component
 {
     public ?BudgetAllocation $allocation = null;

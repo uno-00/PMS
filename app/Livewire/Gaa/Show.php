@@ -7,11 +7,9 @@ use App\Models\Budget\GeneralAppropriationsAct;
 use App\Services\Budget\GaaService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('components.layouts.app')]
 class Show extends Component
 {
     use WithPagination;

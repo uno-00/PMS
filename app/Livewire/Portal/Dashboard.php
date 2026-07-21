@@ -7,10 +7,8 @@ use App\Models\Bac\PhilgepsPosting;
 use App\Models\Procurement\NoticeOfAward;
 use App\Models\Supplier\Bidder;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.portal')]
 class Dashboard extends Component
 {
     public function mount(): void

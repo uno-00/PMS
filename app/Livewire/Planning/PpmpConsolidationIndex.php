@@ -11,12 +11,10 @@ use App\Models\Settings\FiscalYear;
 use App\Services\Planning\PpmpConsolidationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('components.layouts.app')]
 class PpmpConsolidationIndex extends Component
 {
     use WithPagination;

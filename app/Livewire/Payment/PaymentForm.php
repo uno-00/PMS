@@ -6,10 +6,8 @@ use App\Models\Procurement\Payment;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
 class PaymentForm extends Component
 {
     public ?Payment $payment = null;

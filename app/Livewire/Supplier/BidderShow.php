@@ -7,10 +7,8 @@ use App\Services\Supplier\BidderService;
 use App\Services\Support\DocumentStorageService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
 class BidderShow extends Component
 {
     public Bidder $bidder;

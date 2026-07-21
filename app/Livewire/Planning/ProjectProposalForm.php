@@ -14,10 +14,8 @@ use App\Support\MonthYearSchedule;
 use App\Support\RichTextSanitizer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
 class ProjectProposalForm extends Component
 {
     public ?ProjectProposal $projectProposal = null;

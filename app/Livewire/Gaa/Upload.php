@@ -9,11 +9,9 @@ use App\Services\Budget\GaaService;
 use App\Support\UploadLimits;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
-#[Layout('components.layouts.app')]
 class Upload extends Component
 {
     use HandlesUploadErrors, WithFileUploads {

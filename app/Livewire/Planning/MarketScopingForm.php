@@ -10,10 +10,8 @@ use App\Models\Settings\FiscalYear;
 use App\Support\MarketScopingPrintFormatter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
 class MarketScopingForm extends Component
 {
     public ?MarketScoping $marketScoping = null;

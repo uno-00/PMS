@@ -12,12 +12,10 @@ use App\Models\User;
 use App\Services\Bac\BacMemberService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('components.layouts.app')]
 class MemberIndex extends Component
 {
     use InteractsWithTableFilters, WithPagination;

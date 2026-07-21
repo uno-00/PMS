@@ -8,11 +8,9 @@ use App\Services\Bac\BiddingService;
 use App\Services\Bac\ClarificationService;
 use App\Services\Supplier\BidDocumentOrderService;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-#[Layout('components.layouts.portal')]
 class OpportunityShow extends Component
 {
     use WithFileUploads;

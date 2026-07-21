@@ -17,7 +17,6 @@ use App\Models\Procurement\PurchaseRequest;
 use App\Models\Settings\FiscalYear;
 use App\Models\Supplier\Bidder;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Maatwebsite\Excel\Facades\Excel;
@@ -28,7 +27,6 @@ use Spatie\Activitylog\Models\Activity;
  * BAC/PhilGEPS, Suppliers/Awards, Purchase/Payment, Audit/COA,
  * Analytics); every tab can export its underlying dataset to Excel.
  */
-#[Layout('components.layouts.app')]
 class Index extends Component
 {
     #[Url]

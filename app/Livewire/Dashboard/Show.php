@@ -6,7 +6,6 @@ use App\Enums\CafStatus;
 use App\Enums\PhilgepsPostingStatus;
 use App\Enums\PpmpStatus;
 use App\Enums\ProcurementCaseStatus;
-use App\Enums\PurchaseRequestStatus;
 use App\Models\Bac\BacCalendarEvent;
 use App\Models\Bac\BidEvaluation;
 use App\Models\Bac\PhilgepsPosting;
@@ -22,11 +21,9 @@ use App\Models\Procurement\PurchaseRequest;
 use App\Models\Settings\FiscalYear;
 use App\Models\Supplier\Bidder;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Spatie\Activitylog\Models\Activity;
 
-#[Layout('components.layouts.app')]
 class Show extends Component
 {
     public string $type = 'executive';
@@ -64,14 +61,11 @@ class Show extends Component
         return array_merge($spend, [
             'totalGaa' => $fy ? GeneralAppropriationsAct::query()->where('fiscal_year_id', $fy->id)->sum('total_amount') : 0,
             'totalUtilized' => $fy ? BudgetAllocation::query()->where('fiscal_year_id', $fy->id)->whereNull('parent_id')->sum('utilized_amount') : 0,
-            'appStatusCounts' => $fy ? AnnualProcurementPlan::query()->where('fiscal_year_id', $fy->id)->selectRaw('status, count(*) as c')->groupBy('status')->pluck('c', 'status') : collect(),
-            'ppmpStatusCounts' => Ppmp::query()->selectRaw('status, count(*) as c')->groupBy('status')->pluck('c', 'status'),
             'prStatusCounts' => PurchaseRequest::query()->selectRaw('status, count(*) as c')->groupBy('status')->pluck('c', 'status'),
             'caseStatusCounts' => $caseStatusCounts,
             'caseStatusChartItems' => $this->procurementStatusChartItems($caseStatusCounts),
             'upcomingEvents' => BacCalendarEvent::query()->with('procurement')->where('scheduled_at', '>=', now())->orderBy('scheduled_at')->limit(5)->get(),
             'recentAwards' => NoticeOfAward::query()->with(['procurement', 'bidder'])->latest()->limit(5)->get(),
-            'monthlyPr' => PurchaseRequest::query()->selectRaw("strftime('%m', created_at) as m, count(*) as c")->groupBy('m')->pluck('c', 'm'),
         ]);
     }
 
@@ -85,7 +79,6 @@ class Show extends Component
             'totalAllocated' => $allocations->sum('allocated_amount'),
             'totalUtilized' => $allocations->sum('utilized_amount'),
             'pendingCaf' => CertificateOfAvailabilityOfFunds::query()->where('status', '!=', CafStatus::Printed)->count(),
-            'pendingBudgetReviewPr' => PurchaseRequest::query()->where('status', PurchaseRequestStatus::Budget)->count(),
         ]);
     }
 
@@ -103,7 +96,6 @@ class Show extends Component
     {
         return [
             'app' => $fy ? AnnualProcurementPlan::query()->where('fiscal_year_id', $fy->id)->first() : null,
-            'ppmpStatusCounts' => Ppmp::query()->when($fy, fn ($q) => $q->where('fiscal_year_id', $fy->id))->selectRaw('status, count(*) as c')->groupBy('status')->pluck('c', 'status'),
             'ppmpsForReview' => Ppmp::query()->with('division')->where('status', PpmpStatus::PlanningReview)->limit(8)->get(),
         ];
     }

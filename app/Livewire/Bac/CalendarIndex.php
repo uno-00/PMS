@@ -5,12 +5,10 @@ namespace App\Livewire\Bac;
 use App\Models\Bac\BacCalendarEvent;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
 /** Phase 7 "Calendar View": month-grid visualization of every scheduled BAC activity. */
-#[Layout('components.layouts.app')]
 class CalendarIndex extends Component
 {
     #[Url]

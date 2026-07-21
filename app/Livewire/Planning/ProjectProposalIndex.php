@@ -7,12 +7,10 @@ use App\Models\Planning\ProjectProposal;
 use App\Models\Settings\Division;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('components.layouts.app')]
 class ProjectProposalIndex extends Component
 {
     use InteractsWithTableFilters, WithPagination;

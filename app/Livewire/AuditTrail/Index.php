@@ -4,7 +4,6 @@ namespace App\Livewire\AuditTrail;
 
 use App\Livewire\Concerns\InteractsWithTableFilters;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -16,7 +15,6 @@ use Spatie\Activitylog\Models\Activity;
  * transitions, giving COA/Internal Audit a single place to review who
  * changed what, when, and the before/after values.
  */
-#[Layout('components.layouts.app')]
 class Index extends Component
 {
     use InteractsWithTableFilters, WithPagination;

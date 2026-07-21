@@ -12,11 +12,9 @@ use App\Models\Settings\Office;
 use App\Services\Budget\BudgetAllocationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
 class AllocationIndex extends Component
 {
     use InteractsWithTableFilters;

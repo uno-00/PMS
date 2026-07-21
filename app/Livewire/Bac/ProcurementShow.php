@@ -16,11 +16,9 @@ use App\Services\Procurement\PurchaseOrderService;
 use App\Services\Support\DocumentStorageService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-#[Layout('components.layouts.app')]
 class ProcurementShow extends Component
 {
     use WithFileUploads;

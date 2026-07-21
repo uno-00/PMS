@@ -10,12 +10,10 @@ use App\Models\Settings\FiscalYear;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('components.layouts.app')]
 class PpmpIndex extends Component
 {
     use InteractsWithTableFilters, WithPagination;

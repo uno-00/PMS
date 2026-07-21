@@ -4,12 +4,10 @@ namespace App\Livewire\Portal;
 
 use App\Enums\PhilgepsPostingStatus;
 use App\Models\Bac\PhilgepsPosting;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('components.layouts.portal')]
 class OpportunityIndex extends Component
 {
     use WithPagination;

@@ -7,10 +7,8 @@ use App\Models\Procurement\PurchaseOrder;
 use App\Services\Procurement\PurchaseOrderService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
 class PurchaseOrderShow extends Component
 {
     public PurchaseOrder $purchaseOrder;

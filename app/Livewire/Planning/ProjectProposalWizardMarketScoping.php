@@ -13,10 +13,8 @@ use App\Services\Planning\ProjectProposalService;
 use App\Support\MarketScopingPrintFormatter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
 class ProjectProposalWizardMarketScoping extends Component
 {
     public ProjectProposal $projectProposal;

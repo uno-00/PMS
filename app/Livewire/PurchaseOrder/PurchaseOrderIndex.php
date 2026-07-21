@@ -11,7 +11,6 @@ use App\Models\Supplier\Bidder;
 use App\Services\Procurement\PurchaseOrderService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -23,7 +22,6 @@ use Livewire\WithPagination;
  * instead created from the procurement case page after NTP (see
  * Bac\ProcurementShow::createPurchaseOrder).
  */
-#[Layout('components.layouts.app')]
 class PurchaseOrderIndex extends Component
 {
     use InteractsWithTableFilters, WithPagination;

@@ -5,12 +5,10 @@ namespace App\Livewire\Supplier;
 use App\Livewire\Concerns\InteractsWithTableFilters;
 use App\Models\Supplier\Bidder;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('components.layouts.app')]
 class BidderIndex extends Component
 {
     use InteractsWithTableFilters, WithPagination;

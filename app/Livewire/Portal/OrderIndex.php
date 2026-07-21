@@ -6,12 +6,10 @@ use App\Livewire\Concerns\InteractsWithTableFilters;
 use App\Services\Supplier\BidDocumentOrderService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('components.layouts.portal')]
 class OrderIndex extends Component
 {
     use InteractsWithTableFilters, WithPagination;

@@ -8,10 +8,8 @@ use App\Services\Bac\ProcurementCaseService;
 use App\Services\Procurement\PurchaseRequestService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
 class PurchaseRequestShow extends Component
 {
     public PurchaseRequest $purchaseRequest;

@@ -7,10 +7,8 @@ use App\Models\Settings\FiscalYear;
 use App\Services\Planning\AnnualProcurementPlanService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
 class AppShow extends Component
 {
     public ?AnnualProcurementPlan $app = null;

@@ -5,10 +5,8 @@ namespace App\Livewire\Portal;
 use App\Enums\NoticeOfAwardStatus;
 use App\Services\Bac\AwardService;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.portal')]
 class AwardIndex extends Component
 {
     public function respond(string $noaId, bool $accept, AwardService $service): void

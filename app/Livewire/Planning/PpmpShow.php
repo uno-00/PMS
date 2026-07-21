@@ -9,10 +9,8 @@ use App\Models\Settings\ModeOfProcurement;
 use App\Services\Planning\PpmpService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
 class PpmpShow extends Component
 {
     public Ppmp $ppmp;

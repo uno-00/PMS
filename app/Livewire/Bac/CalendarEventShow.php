@@ -4,10 +4,8 @@ namespace App\Livewire\Bac;
 
 use App\Models\Bac\BacCalendarEvent;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
 class CalendarEventShow extends Component
 {
     public BacCalendarEvent $calendarEvent;

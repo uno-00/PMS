@@ -6,10 +6,8 @@ use App\Models\Procurement\CertificateOfAvailabilityOfFunds;
 use App\Services\Procurement\CafService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
 class CafShow extends Component
 {
     public CertificateOfAvailabilityOfFunds $caf;

@@ -3,7 +3,6 @@
 namespace App\Livewire\Settings;
 
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 /**
@@ -12,7 +11,6 @@ use Livewire\Component;
  * Years, Reference/Master Data, Security policy, Integrations, Users, and
  * RBAC.
  */
-#[Layout('components.layouts.app')]
 class Index extends Component
 {
     public string $tab = 'profile';

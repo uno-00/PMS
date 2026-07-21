@@ -13,11 +13,9 @@ use App\Models\Settings\Office;
 use App\Services\Planning\PpmpConsolidationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
 class PpmpConsolidationWizard extends Component
 {
     public ?PpmpConsolidation $consolidation = null;

@@ -4,10 +4,8 @@ namespace App\Livewire\Help;
 
 use App\Support\HelpContent;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
 class Index extends Component
 {
     public string $module = 'gaa';

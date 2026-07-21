@@ -6,11 +6,9 @@ use App\Models\Supplier\Bidder;
 use App\Services\Supplier\BidderService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-#[Layout('components.layouts.portal')]
 class Profile extends Component
 {
     use WithFileUploads;
