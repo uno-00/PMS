@@ -92,7 +92,8 @@ Set `RUN_SEED=false` so redeploys do not re-seed the database.
 | Issue | Fix |
 |-------|-----|
 | Build fails on Composer | Check `composer.lock` is committed |
-| Build OK but healthcheck fails | Server now starts before migrate/seed; ensure MySQL variables are linked; set `RUN_SEED=true` only on first deploy |
+| Build OK but healthcheck fails | Link MySQL variables on the web service; set `RUN_SEED=true` only on first deploy; check Deploy Logs for `database not reachable` |
+| Service shows "Unexposed" | Web service → **Settings** → **Networking** → **Generate Domain** |
 | CSS broken | Image includes `npm run build`; redeploy |
 | Login works locally only | Set `APP_URL` to Railway domain |
 | Mixed content / http assets | `APP_URL` must start with `https://` |
