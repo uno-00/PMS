@@ -62,6 +62,7 @@ Event-Driven Architecture
 | Document | Purpose |
 |---|---|
 | [`docs/INSTALLATION.md`](docs/INSTALLATION.md) | Local development setup |
+| [`docs/RAILWAY_DEPLOYMENT.md`](docs/RAILWAY_DEPLOYMENT.md) | 24/7 cloud demo (Railway) |
 | [`docs/DOCKER.md`](docs/DOCKER.md) | Multi-container Docker Compose stack |
 | [`docs/AWS_DEPLOYMENT.md`](docs/AWS_DEPLOYMENT.md) | Production AWS deployment (ECS, RDS, S3, IAM) |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Layered design, ERD, workflow state machines, sequence diagrams |
